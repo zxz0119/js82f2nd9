@@ -1,0 +1,15 @@
+{
+  "name": "湖南省考白金版",
+  "short_name": "省考助手",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#D32F2F",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
