@@ -117,7 +117,7 @@
         .phase-tag { background: #e3f2fd; color: var(--secondary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
         .phase-desc { font-size: 0.9rem; color: var(--subtext); margin-top: 5px; }
 
-        /* --- 增强版弹窗系统 --- */
+        /* --- 弹窗系统 --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 999;
@@ -170,10 +170,8 @@
         </div>
 
         <div class="manual-shift-panel">
-            <span>🛠 今日启动点：</span>
-            <div>
-                <input type="time" id="manualStartTime" onchange="setManualShift()">
-            </div>
+            <span>🛠 启动点：<input type="time" id="manualStartTime" onchange="setManualShift()"></span>
+            <button class="icon-btn" id="dynamicToggle" onclick="toggleDynamicMode()" style="background: rgba(255,255,255,0.3); min-width: 100px;">⏱️ 动态顺延: 开</button>
         </div>
 
         <div class="date-nav">
@@ -181,7 +179,7 @@
             <div style="text-align:center">
                 <div class="date-main" id="headerDate">--月--日</div>
                 <div class="date-sub" id="headerSub">--</div>
-                <div class="reset-link" onclick="clearManualShift()">↺ 重置所有偏移</div>
+                <div class="reset-link" onclick="clearManualShift()">↺ 重置所有记录</div>
             </div>
             <button class="nav-btn" onclick="changeDay(1)">›</button>
         </div>
@@ -209,7 +207,7 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-card" style="height: auto; padding: 20px;">
             <h3 style="margin-top:0">数据管理</h3>
-            <p style="font-size:0.85rem; color:#666;">建议每周备份一次，防止数据丢失。</p>
+            <p style="font-size:0.85rem; color:#666;">建议每周备份一次。</p>
             <button onclick="exportData()" style="width:100%; padding:12px; background:var(--secondary); color:white; border:none; border-radius:8px; margin-bottom:10px;">📤 导出本地备份</button>
             <button onclick="document.getElementById('importFile').click()" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px;">📥 导入恢复数据</button>
             <input type="file" id="importFile" style="display:none" onchange="importData(this)">
@@ -220,7 +218,7 @@
     <div class="toast" id="toast">✅ 已打卡</div>
 
     <script>
-        // --- 1. 基础配置与工具 ---
+        // --- 1. 基础配置 ---
         const EXAM_DATE = new Date('2026-03-14');
         const START_DATE = new Date('2026-01-01');
         let currentViewDate = new Date();
@@ -239,7 +237,7 @@
             return (diff % 2 === 0) ? "💤 休息日 (散步/拉伸)" : "🔥 力量+有氧 (1小时)";
         }
 
-        // --- 2. 任务载入逻辑 (保持原样) ---
+        // --- 2. 任务列表逻辑 ---
         function getRawTasks(date) {
             const month = date.getMonth() + 1;
             const day = date.getDate();
@@ -309,17 +307,17 @@
             return { info: phase, tasks: tasks };
         }
 
-        // --- 3. 动态顺延核心 (Rolling Anchor 算法) ---
+        // --- 3. 动态计算核心 ---
         function processTasksWithDynamicShift(rawTasks, isToday) {
             const dateKey = formatDate(currentViewDate);
             const savedIndices = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
             const actualTimes = JSON.parse(localStorage.getItem('hunan_actual_times_' + dateKey) || '{}');
             const manualStart = localStorage.getItem('manual_start_' + dateKey);
+            const isDynamicMode = localStorage.getItem('hunan_dynamic_mode') !== 'false';
 
             let currentShift = 0;
-            
-            // 基础初始偏移逻辑
             const firstTimed = rawTasks.find(t => t.t.includes(':'));
+            
             if (firstTimed) {
                 const planStart = timeToMins(firstTimed.t);
                 if (manualStart) {
@@ -339,45 +337,43 @@
                 let displayTime, status = '', originalTime = null;
 
                 if (savedIndices.includes(i) && actualTimes[i]) {
-                    // 已打卡：显示打卡那一刻的时间，并更新偏移量影响后续
                     displayTime = actualTimes[i];
-                    currentShift = timeToMins(actualTimes[i]) - origMins;
+                    if (isDynamicMode) currentShift = timeToMins(actualTimes[i]) - origMins;
                     status = 'actual';
                     originalTime = t.t;
                 } else {
-                    // 未打卡：基于当前的最新偏移量计算预估时间
                     const shiftedMins = origMins + currentShift;
                     displayTime = minsToTime(shiftedMins);
                     status = currentShift !== 0 ? 'shifted' : '';
                     if(currentShift !== 0) originalTime = t.t;
                 }
-
                 return { ...t, displayTime, originalTime, status };
             });
 
-            return { tasks: processed, shift: currentShift };
+            return { tasks: processed, shift: currentShift, mode: isDynamicMode };
         }
 
-        // --- 4. 渲染逻辑 ---
+        // --- 4. 渲染核心 ---
         function render() {
             const isToday = formatDate(currentViewDate) === formatDate(new Date());
             const raw = getRawTasks(currentViewDate);
             const processed = processTasksWithDynamicShift(raw.tasks, isToday);
             
-            // 更新标题
             document.getElementById('headerDate').innerText = `${currentViewDate.getMonth()+1}月${currentViewDate.getDate()}日`;
             const diff = Math.ceil((EXAM_DATE - currentViewDate)/86400000);
-            document.getElementById('headerSub').innerText = isToday ? `距省考 ${diff} 天` : (currentViewDate > new Date() ? `未来计划` : `往日回顾`);
+            document.getElementById('headerSub').innerText = isToday ? `距省考 ${diff} 天` : (currentViewDate > new Date() ? `未来计划` : `回顾`);
             document.getElementById('backTodayBtn').style.display = isToday ? 'none' : 'block';
 
-            // 顺延通知
+            const toggleBtn = document.getElementById('dynamicToggle');
+            toggleBtn.innerText = `⏱️ 动态顺延: ${processed.mode ? '开' : '关'}`;
+            toggleBtn.style.opacity = processed.mode ? '1' : '0.6';
+
             const noticeEl = document.getElementById('shiftNotice');
             if (processed.shift !== 0) {
-                noticeEl.innerText = `🔄 后续任务已随打卡节奏${processed.shift > 0 ? '顺延':'提前'} ${Math.abs(processed.shift)} 分钟`;
+                noticeEl.innerText = processed.mode ? `🔄 后续随节奏顺延 ${Math.abs(processed.shift)} 分钟` : `📍 启动点固定顺延 ${Math.abs(processed.shift)} 分钟`;
                 noticeEl.classList.add('active');
             } else { noticeEl.classList.remove('active'); }
 
-            // 阶段渲染
             document.getElementById('phaseContainer').innerHTML = `
                 <div class="phase-card">
                     <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
@@ -387,7 +383,6 @@
                     <div class="phase-desc">${raw.info.desc}</div>
                 </div>`;
 
-            // 列表渲染
             const k = 'hunan_exam_' + formatDate(currentViewDate);
             const saved = JSON.parse(localStorage.getItem(k) || '[]');
             const listEl = document.getElementById('taskList');
@@ -396,7 +391,6 @@
             processed.tasks.forEach((t, i) => {
                 const checked = saved.includes(i);
                 const isLocked = i > 0 && !saved.includes(i-1) && !checked;
-                
                 listEl.innerHTML += `
                     <div class="task-item ${checked?'completed':''} ${isLocked?'locked':''}" onclick="toggleTask(${i})">
                         <div class="checkbox"></div>
@@ -415,35 +409,37 @@
             document.getElementById('progressBar').style.width = (raw.tasks.length ? (saved.length/raw.tasks.length*100) : 0) + '%';
         }
 
-        // --- 5. 交互逻辑 (顺向打卡与重置) ---
+        // --- 5. 业务逻辑 ---
+        function toggleDynamicMode() {
+            const current = localStorage.getItem('hunan_dynamic_mode') !== 'false';
+            localStorage.setItem('hunan_dynamic_mode', !current);
+            render();
+            showToast(`动态顺延已${!current ? '开启' : '关闭'}`);
+        }
+
         function toggleTask(i) {
             const dateKey = formatDate(currentViewDate);
             const k = 'hunan_exam_' + dateKey;
             const tk = 'hunan_actual_times_' + dateKey;
-            
             let saved = JSON.parse(localStorage.getItem(k) || '[]');
             let actualTimes = JSON.parse(localStorage.getItem(tk) || '{}');
             
             if (saved.includes(i)) {
-                // 取消打卡：必须是最后一个
                 if (saved.some(index => index > i)) {
-                    showToast("⚠️ 请先取消后续任务打卡", "warning");
+                    showToast("⚠️ 请先取消后续任务", "warning");
                     return;
                 }
                 saved = saved.filter(x => x !== i);
                 delete actualTimes[i];
             } else {
-                // 打卡：必须按顺序
                 if (i > 0 && !saved.includes(i - 1)) {
-                    showToast("🔒 请按顺序完成前置任务", "warning");
+                    showToast("🔒 请按顺序打卡", "warning");
                     return;
                 }
                 saved.push(i);
                 const now = new Date();
                 actualTimes[i] = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-                showToast("✅ 已同步后续任务时间");
             }
-            
             localStorage.setItem(k, JSON.stringify(saved));
             localStorage.setItem(tk, JSON.stringify(actualTimes));
             render();
@@ -451,24 +447,18 @@
 
         function setManualShift() {
             const time = document.getElementById('manualStartTime').value;
-            if(time) {
-                localStorage.setItem('manual_start_' + formatDate(currentViewDate), time);
-                render();
-            }
+            if(time) { localStorage.setItem('manual_start_' + formatDate(currentViewDate), time); render(); }
         }
 
         function clearManualShift() {
-            if(!confirm("确定要重置今日所有打卡时间与偏移吗？")) return;
+            if(!confirm("确定重置吗？")) return;
             const dk = formatDate(currentViewDate);
             localStorage.removeItem('manual_start_' + dk);
             localStorage.removeItem('hunan_exam_' + dk);
             localStorage.removeItem('hunan_actual_times_' + dk);
-            if(document.getElementById('manualStartTime')) document.getElementById('manualStartTime').value = "";
             render();
-            showToast("🔄 已重置为初始计划");
         }
 
-        // 其他辅助逻辑 (保持原样)
         function showToast(msg, type) {
             const t = document.getElementById('toast');
             t.innerText = msg;
@@ -476,23 +466,17 @@
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 1500);
         }
-        function switchTab(t) { activeTab = t; refreshHistoryList(); }
-        function openHistoryModal() { document.getElementById('historyModal').classList.add('active'); refreshHistoryList(); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function changeDay(o) { currentViewDate.setDate(currentViewDate.getDate()+o); render(); }
-        function goToToday() { currentViewDate = new Date(); render(); }
-        function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
-        
+
         function exportData() {
             let data = {};
             for(let i=0; i<localStorage.length; i++){
                 let k = localStorage.key(i);
-                if(k.startsWith('hunan_')) data[k] = localStorage.getItem(k);
+                if(k.startsWith('hunan_') || k.startsWith('manual_start_')) data[k] = localStorage.getItem(k);
             }
             const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `省考打卡备份_${formatDate(new Date())}.json`;
+            a.download = `省考备份_${formatDate(new Date())}.json`;
             a.click();
         }
 
@@ -502,11 +486,18 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     for(let k in data) localStorage.setItem(k, data[k]);
-                    alert("恢复成功"); location.reload();
+                    alert("导入成功"); location.reload();
                 } catch(e) { alert("格式错误"); }
             };
             reader.readAsText(input.files[0]);
         }
+
+        function openHistoryModal() { document.getElementById('historyModal').classList.add('active'); refreshHistoryList(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function changeDay(o) { currentViewDate.setDate(currentViewDate.getDate()+o); render(); }
+        function goToToday() { currentViewDate = new Date(); render(); }
+        function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
+        function switchTab(t) { activeTab = t; refreshHistoryList(); }
 
         function refreshHistoryList() {
             const body = document.getElementById('historyContent');
