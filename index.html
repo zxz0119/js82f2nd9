@@ -225,8 +225,11 @@
 
         const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const timeToMins = s => { if(!s || !s.includes(':')) return -1; const [h,m]=s.split(':').map(Number); return h*60+m; };
+        
+        // --- 修复：顺延不跨天显示 ---
         const minsToTime = m => { 
-            let totalMins = m % 1440; if(totalMins < 0) totalMins += 1440;
+            if (m >= 1440) return "23:59"; // 如果超过24:00，锁定为23:59
+            let totalMins = Math.max(0, m); // 确保不为负数
             let h=Math.floor(totalMins/60), mm=totalMins%60; 
             return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; 
         };
@@ -255,8 +258,7 @@
                     { t: "20:00", title: "📱 戒断设置", detail: "抖音/游戏限制每日15分钟。", type: "todo" },
                     { t: "22:30", title: "💤 强制早睡", detail: "调整生物钟，禁止熬夜。", type: "health" }
                 ];
-            }
-            else if (month === 1 && day >= 6 && day <= 27) {
+            } else if (month === 1 && day >= 6 && day <= 27) {
                 phase = { title: "🏗 Phase 1：基石修复期", desc: "找回肌肉记忆，建立常识框架。", tag: "打基础" };
                 tasks = [
                     { t: "07:30", title: "起居 & 启动", detail: "温水400ml + 维B/C", type: "health" },
@@ -271,16 +273,14 @@
                     { t: "20:00", title: "图形 & 政治", detail: "图推20题 + 政治网课", type: "study" },
                     { t: "23:00", title: "晚安", detail: "回顾公式，睡觉", type: "health" }
                 ];
-            }
-            else if ((month === 1 && day >= 28) || (month === 2 && day <= 3)) {
+            } else if ((month === 1 && day >= 28) || (month === 2 && day <= 3)) {
                 phase = { title: "🧨 Phase 2：春节保手感", desc: "弹性学习，不断档。", tag: "维持" };
                 tasks = [
                     { t: "09:00", title: "防手生训练", detail: "资料分析15题 + 图推10题", type: "study" },
                     { t: "14:00", title: "湖南常识", detail: "刷'新湖南'App", type: "study" },
                     { t: "全天", title: "居家运动", detail: "深蹲/俯卧撑 30分钟", type: "health" }
                 ];
-            }
-            else if (month === 2 && day >= 4) {
+            } else if (month === 2 && day >= 4) {
                 const isModeA = [0, 1, 3, 5].includes(dayOfWeek);
                 phase = { title: "🚀 Phase 3：提速期", desc: isModeA ? "理科主攻" : "文科主攻", tag: "提速" };
                 tasks = [
@@ -291,8 +291,7 @@
                     { t: "17:30", title: "运动", detail: getExerciseType(date), type: "health" },
                     { t: "20:00", title: "错题清零", detail: "整理今日错题", type: "study" }
                 ];
-            }
-            else if (month === 3 && day <= 13) {
+            } else if (month === 3 && day <= 13) {
                 phase = { title: "🏁 Phase 4：全真模考", desc: "适应考场时间。", tag: "冲刺" };
                 tasks = [
                     { t: "07:00", title: "早起模拟", detail: "模拟考试日起床时间", type: "health" },
@@ -301,13 +300,11 @@
                     { t: "19:00", title: "押题背诵", detail: "时政/考前30分", type: "study" },
                     { t: "22:30", title: "强制早睡", detail: "调整生物钟", type: "health" }
                 ];
-            } else {
-                phase = { title: "⏳ 非备考期", desc: "不在计划范围内", tag: "等待" };
-            }
+            } else { phase = { title: "⏳ 非备考期", desc: "不在计划范围内", tag: "等待" }; }
             return { info: phase, tasks: tasks };
         }
 
-        // --- 3. 动态计算核心 ---
+        // --- 3. 计算核心 ---
         function processTasksWithDynamicShift(rawTasks, isToday) {
             const dateKey = formatDate(currentViewDate);
             const savedIndices = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
@@ -333,7 +330,6 @@
             const processed = rawTasks.map((t, i) => {
                 const origMins = timeToMins(t.t);
                 if (origMins === -1) return { ...t };
-
                 let displayTime, status = '', originalTime = null;
 
                 if (savedIndices.includes(i) && actualTimes[i]) {
@@ -343,7 +339,7 @@
                     originalTime = t.t;
                 } else {
                     const shiftedMins = origMins + currentShift;
-                    displayTime = minsToTime(shiftedMins);
+                    displayTime = minsToTime(shiftedMins); // 这里调用修复后的minsToTime
                     status = currentShift !== 0 ? 'shifted' : '';
                     if(currentShift !== 0) originalTime = t.t;
                 }
@@ -426,15 +422,13 @@
             
             if (saved.includes(i)) {
                 if (saved.some(index => index > i)) {
-                    showToast("⚠️ 请先取消后续任务", "warning");
-                    return;
+                    showToast("⚠️ 请先取消后续任务", "warning"); return;
                 }
                 saved = saved.filter(x => x !== i);
                 delete actualTimes[i];
             } else {
                 if (i > 0 && !saved.includes(i - 1)) {
-                    showToast("🔒 请按顺序打卡", "warning");
-                    return;
+                    showToast("🔒 请按顺序打卡", "warning"); return;
                 }
                 saved.push(i);
                 const now = new Date();
@@ -467,11 +461,14 @@
             setTimeout(() => t.classList.remove('show'), 1500);
         }
 
+        // --- 修复：确保所有 hunan_ 开头（包含时间记录）和启动点都备份 ---
         function exportData() {
             let data = {};
             for(let i=0; i<localStorage.length; i++){
                 let k = localStorage.key(i);
-                if(k.startsWith('hunan_') || k.startsWith('manual_start_')) data[k] = localStorage.getItem(k);
+                if(k.startsWith('hunan_') || k.startsWith('manual_start_')) {
+                    data[k] = localStorage.getItem(k);
+                }
             }
             const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
             const a = document.createElement('a');
@@ -486,7 +483,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     for(let k in data) localStorage.setItem(k, data[k]);
-                    alert("导入成功"); location.reload();
+                    alert("导入成功，记录已完全恢复"); location.reload();
                 } catch(e) { alert("格式错误"); }
             };
             reader.readAsText(input.files[0]);
