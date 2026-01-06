@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026湖南省考冲刺 (白金版)</title>
+    <title>2026湖南省考冲刺 (白金全能版)</title>
     <style>
         :root {
             --primary: #D32F2F; --primary-dark: #b71c1c; --secondary: #1976D2;
@@ -18,15 +18,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Header */
+        /* --- 头部与控制面板 --- */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white; padding: 15px 20px 25px 20px;
-            border-radius: 0 0 25px 25px;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            border-radius: 0 0 25px 25px; box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
             position: relative;
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .app-title { font-weight: 800; font-size: 1.1rem; }
         
         .btn-group { display: flex; gap: 8px; }
@@ -36,19 +35,33 @@
             font-size: 0.8rem; cursor: pointer; backdrop-filter: blur(5px);
         }
 
+        .manual-shift-panel {
+            background: rgba(255,255,255,0.15); border-radius: 12px; padding: 8px 12px;
+            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .manual-shift-panel input[type="time"] {
+            background: white; border: none; border-radius: 4px; padding: 2px 5px;
+            width: 70px; text-align: center; color: var(--primary); font-weight: bold;
+        }
+
         .date-nav {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(0,0,0,0.15); border-radius: 12px; padding: 10px;
             margin-bottom: 12px; backdrop-filter: blur(5px);
         }
         .nav-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 0 15px; cursor: pointer; opacity: 0.8; }
-        .date-display { text-align: center; }
         .date-main { font-size: 1.2rem; font-weight: 700; }
         .date-sub { font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
 
+        .reset-link {
+            font-size: 0.7rem; color: #FFD700; text-decoration: underline; 
+            margin-top: 5px; display: inline-block; cursor: pointer;
+        }
+
         .time-shift-notice {
             background: rgba(255, 235, 59, 0.2); border: 1px solid rgba(255, 235, 59, 0.4);
-            color: #fff; font-size: 0.8rem; padding: 8px 12px; border-radius: 8px;
+            color: #fff; font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;
             margin-bottom: 12px; display: none; align-items: center; justify-content: center;
         }
         .time-shift-notice.active { display: flex; animation: fadeIn 0.5s; }
@@ -63,21 +76,22 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: none; z-index: 10;
         }
 
-        /* Task Items */
+        /* --- 任务列表与卡片 --- */
         .task-list { padding: 0 15px; }
         .task-item {
             background: white; margin: 12px 0; padding: 16px;
             border-radius: 16px; display: flex; align-items: flex-start;
             box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s;
         }
-        .task-item.completed { background: #f1f8e9; }
+        .task-item.locked { opacity: 0.5; filter: grayscale(0.8); }
+        .task-item.completed { background: #f1f8e9; border: 1px solid #c5e1a5; }
         .checkbox {
             width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 7px;
             margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
         }
         .task-item.completed .checkbox { background: var(--success); border-color: var(--success); }
         .task-item.completed .checkbox::after { content: '✓'; color: white; font-size: 16px; font-weight: bold; }
-        .task-item.completed .task-title, .task-item.completed .task-detail { opacity: 0.5; text-decoration: line-through; }
+        .task-item.completed .task-title { color: var(--success); }
         
         .task-content { flex: 1; }
         .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -88,12 +102,12 @@
             background: #ffebee; padding: 3px 8px; border-radius: 6px; 
             min-width: 50px; text-align: center;
         }
+        .task-time.actual { background: var(--success); color: white; }
         .task-time.shifted { color: #E65100; background: #FFF3E0; border: 1px solid #FFE0B2; }
-        .task-time.cutoff { color: #fff; background: var(--cutoff); border: 1px solid #000; }
         .original-time { font-size: 0.7rem; color: #999; text-decoration: line-through; margin-right: 5px; }
         .task-detail { font-size: 0.85rem; color: #666; line-height: 1.4; }
 
-        /* Phase Card */
+        /* 阶段卡片 */
         .phase-card {
             background: white; margin: 20px 15px 15px 15px; padding: 18px;
             border-radius: 16px; border-left: 5px solid var(--secondary);
@@ -103,7 +117,7 @@
         .phase-tag { background: #e3f2fd; color: var(--secondary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
         .phase-desc { font-size: 0.9rem; color: var(--subtext); margin-top: 5px; }
 
-        /* Modals */
+        /* --- 增强版弹窗系统 --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 999;
@@ -111,31 +125,26 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-card {
-            background: white; width: 85%; max-width: 400px; max-height: 80vh;
+            background: white; width: 90%; max-width: 450px; height: 80vh;
             border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
-            padding: 20px;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
-        .modal-title { font-weight: bold; font-size: 1.1rem; }
-        .close-btn { font-size: 1.5rem; cursor: pointer; color: #999; }
+        .modal-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; }
+        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: white; }
         
-        .history-list { overflow-y: auto; max-height: 60vh; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
         .history-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer;
+            padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer;
         }
         .h-status { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; display:inline-block; }
-        .h-perfect { background: #4CAF50; } .h-good { background: #FFC107; } .h-bad { background: #ddd; }
 
-        .settings-btn { width: 100%; padding: 12px; margin-top: 10px; border:none; border-radius: 8px; background: #f5f5f5; color: #333; font-size: 1rem; cursor: pointer; }
-        .settings-btn.primary { background: var(--secondary); color: white; }
-        
-        /* Toast & FAB */
         .toast {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
             border-radius: 25px; font-size: 0.9rem; z-index: 1000;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            text-align: center;
         }
         .toast.show { opacity: 1; }
         .fab {
@@ -146,7 +155,6 @@
             box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4); 
             font-size: 24px; cursor: pointer; z-index: 100;
         }
-        .empty-state { padding: 40px; text-align: center; color: #999; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -154,97 +162,84 @@
 
     <div class="header">
         <div class="header-top">
-            <div class="app-title">⏰ 省考冲刺白金版</div>
+            <div class="app-title">⏰ 省考助手 · 尊享版</div>
             <div class="btn-group">
-                <button class="icon-btn" onclick="showHistory()">📅 日历</button>
+                <button class="icon-btn" onclick="openHistoryModal()">📅 日历</button>
                 <button class="icon-btn" onclick="showSettings()">⚙️ 备份</button>
+            </div>
+        </div>
+
+        <div class="manual-shift-panel">
+            <span>🛠 今日启动点：</span>
+            <div>
+                <input type="time" id="manualStartTime" onchange="setManualShift()">
             </div>
         </div>
 
         <div class="date-nav">
             <button class="nav-btn" onclick="changeDay(-1)">‹</button>
-            <div class="date-display">
+            <div style="text-align:center">
                 <div class="date-main" id="headerDate">--月--日</div>
                 <div class="date-sub" id="headerSub">--</div>
+                <div class="reset-link" onclick="clearManualShift()">↺ 重置所有偏移</div>
             </div>
             <button class="nav-btn" onclick="changeDay(1)">›</button>
         </div>
         
         <div class="time-shift-notice" id="shiftNotice"></div>
-
-        <div class="progress-bar-bg">
-            <div class="progress-fill" id="progressBar"></div>
-        </div>
-        
+        <div class="progress-bar-bg"><div class="progress-fill" id="progressBar"></div></div>
         <div class="back-today" id="backTodayBtn" onclick="goToToday()">回到今天</div>
     </div>
 
     <div id="phaseContainer"></div>
     <div class="task-list" id="taskList"></div>
-    <div class="fab" onclick="resetDay()" title="重置今日">↻</div>
+    <div class="fab" onclick="goToToday()">📍</div>
 
     <div class="modal-overlay" id="historyModal">
         <div class="modal-card">
-            <div class="modal-header">
-                <div class="modal-title">📊 备考足迹</div>
-                <span class="close-btn" onclick="closeModal('historyModal')">×</span>
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="tabFoot" onclick="switchTab('foot')">👣 备考足迹</button>
+                <button class="tab-btn" id="tabCal" onclick="switchTab('cal')">📅 备考日历</button>
+                <button style="padding:15px; border:none; background:none; font-size:1.5rem;" onclick="closeModal('historyModal')">×</button>
             </div>
-            <div class="history-list" id="historyListContent"></div>
+            <div class="modal-body" id="historyContent"></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="settingsModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <div class="modal-title">⚙️ 数据备份与恢复</div>
-                <span class="close-btn" onclick="closeModal('settingsModal')">×</span>
-            </div>
-            <div style="text-align:center; padding: 10px 0;">
-                <p style="font-size:0.9rem; color:#666; margin-bottom:20px;">
-                    如果不小心清除了浏览器缓存，数据会丢失。<br>建议每周点击“导出”保存一份文件。
-                </p>
-                <button class="settings-btn primary" onclick="exportData()">📤 导出备份 (下载文件)</button>
-                <button class="settings-btn" onclick="document.getElementById('importFile').click()">📥 导入备份 (恢复数据)</button>
-                <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-            </div>
+        <div class="modal-card" style="height: auto; padding: 20px;">
+            <h3 style="margin-top:0">数据管理</h3>
+            <p style="font-size:0.85rem; color:#666;">建议每周备份一次，防止数据丢失。</p>
+            <button onclick="exportData()" style="width:100%; padding:12px; background:var(--secondary); color:white; border:none; border-radius:8px; margin-bottom:10px;">📤 导出本地备份</button>
+            <button onclick="document.getElementById('importFile').click()" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px;">📥 导入恢复数据</button>
+            <input type="file" id="importFile" style="display:none" onchange="importData(this)">
+            <button onclick="closeModal('settingsModal')" style="width:100%; margin-top:15px; border:none; background:none; color:#999;">关闭</button>
         </div>
     </div>
 
-    <div class="toast" id="toast">✅ 已保存</div>
+    <div class="toast" id="toast">✅ 已打卡</div>
 
     <script>
-        // --- 1. 配置与基础 ---
+        // --- 1. 基础配置与工具 ---
         const EXAM_DATE = new Date('2026-03-14');
         const START_DATE = new Date('2026-01-01');
         let currentViewDate = new Date();
 
-        function formatDate(d) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-        }
-
-        function timeToMinutes(timeStr) {
-            if (!timeStr || !timeStr.includes(':')) return -1;
-            const [h, m] = timeStr.split(':').map(Number);
-            return h * 60 + m;
-        }
-
-        function minutesToTime(mins) {
-            let h = Math.floor(mins / 60);
-            let m = mins % 60;
-            if (h >= 24) return "23:59";
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        }
+        const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const timeToMins = s => { if(!s || !s.includes(':')) return -1; const [h,m]=s.split(':').map(Number); return h*60+m; };
+        const minsToTime = m => { 
+            let totalMins = m % 1440; if(totalMins < 0) totalMins += 1440;
+            let h=Math.floor(totalMins/60), mm=totalMins%60; 
+            return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; 
+        };
 
         function getExerciseType(date) {
             const base = new Date('2026-01-01');
-            const diff = Math.floor((date - base) / (1000*60*60*24));
+            const diff = Math.floor((date - base) / 86400000);
             return (diff % 2 === 0) ? "💤 休息日 (散步/拉伸)" : "🔥 力量+有氧 (1小时)";
         }
 
-        // --- 2. 任务数据生成 ---
+        // --- 2. 任务载入逻辑 (保持原样) ---
         function getRawTasks(date) {
             const month = date.getMonth() + 1;
             const day = date.getDate();
@@ -252,7 +247,6 @@
             let phase = {};
             let tasks = [];
 
-            // Phase 0: 1.1 - 1.5
             if (month === 1 && day <= 5) {
                 phase = { title: "🛠 Phase 0：物资与身心整备", desc: "工欲善其事，必先利其器。", tag: "准备" };
                 tasks = [
@@ -264,8 +258,7 @@
                     { t: "22:30", title: "💤 强制早睡", detail: "调整生物钟，禁止熬夜。", type: "health" }
                 ];
             }
-            // Phase 1: 1.6 - 1.27
-            else if ((month === 1 && day >= 6) && (month === 1 && day <= 27)) {
+            else if (month === 1 && day >= 6 && day <= 27) {
                 phase = { title: "🏗 Phase 1：基石修复期", desc: "找回肌肉记忆，建立常识框架。", tag: "打基础" };
                 tasks = [
                     { t: "07:30", title: "起居 & 启动", detail: "温水400ml + 维B/C", type: "health" },
@@ -281,7 +274,6 @@
                     { t: "23:00", title: "晚安", detail: "回顾公式，睡觉", type: "health" }
                 ];
             }
-            // Phase 2: 春节
             else if ((month === 1 && day >= 28) || (month === 2 && day <= 3)) {
                 phase = { title: "🧨 Phase 2：春节保手感", desc: "弹性学习，不断档。", tag: "维持" };
                 tasks = [
@@ -290,7 +282,6 @@
                     { t: "全天", title: "居家运动", detail: "深蹲/俯卧撑 30分钟", type: "health" }
                 ];
             }
-            // Phase 3: 提速
             else if (month === 2 && day >= 4) {
                 const isModeA = [0, 1, 3, 5].includes(dayOfWeek);
                 phase = { title: "🚀 Phase 3：提速期", desc: isModeA ? "理科主攻" : "文科主攻", tag: "提速" };
@@ -303,7 +294,6 @@
                     { t: "20:00", title: "错题清零", detail: "整理今日错题", type: "study" }
                 ];
             }
-            // Phase 4: 冲刺
             else if (month === 3 && day <= 13) {
                 phase = { title: "🏁 Phase 4：全真模考", desc: "适应考场时间。", tag: "冲刺" };
                 tasks = [
@@ -319,233 +309,223 @@
             return { info: phase, tasks: tasks };
         }
 
-        // --- 3. 智能顺延逻辑 ---
-        function processTasksWithTimeShift(rawTasks, isToday) {
-            if (!isToday || rawTasks.length === 0) return { tasks: rawTasks, shiftMins: 0 };
-            
-            const firstTimedTask = rawTasks.find(t => t.t.includes(':'));
-            if (!firstTimedTask) return { tasks: rawTasks, shiftMins: 0 };
+        // --- 3. 动态顺延核心 (Rolling Anchor 算法) ---
+        function processTasksWithDynamicShift(rawTasks, isToday) {
+            const dateKey = formatDate(currentViewDate);
+            const savedIndices = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
+            const actualTimes = JSON.parse(localStorage.getItem('hunan_actual_times_' + dateKey) || '{}');
+            const manualStart = localStorage.getItem('manual_start_' + dateKey);
 
-            const planStartMins = timeToMinutes(firstTimedTask.t);
-            const now = new Date();
-            const currentMins = now.getHours() * 60 + now.getMinutes();
+            let currentShift = 0;
             
-            let shiftMins = 0;
-            // 逻辑：如果迟到超过30分钟，且还没到下午2点，触发顺延
-            if (currentMins > planStartMins + 30 && currentMins < 14 * 60) {
-                const diff = currentMins - planStartMins;
-                shiftMins = Math.floor(diff / 15) * 15; // 按15分钟取整
+            // 基础初始偏移逻辑
+            const firstTimed = rawTasks.find(t => t.t.includes(':'));
+            if (firstTimed) {
+                const planStart = timeToMins(firstTimed.t);
+                if (manualStart) {
+                    currentShift = timeToMins(manualStart) - planStart;
+                } else if (isToday && savedIndices.length === 0) {
+                    const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
+                    if (nowMins > planStart + 30) {
+                        currentShift = Math.floor((nowMins - planStart) / 15) * 15;
+                    }
+                }
             }
 
-            if (shiftMins <= 0) return { tasks: rawTasks, shiftMins: 0 };
+            const processed = rawTasks.map((t, i) => {
+                const origMins = timeToMins(t.t);
+                if (origMins === -1) return { ...t };
 
-            const newTasks = rawTasks.map(task => {
-                const originalMins = timeToMinutes(task.t);
-                if (originalMins === -1) return task;
+                let displayTime, status = '', originalTime = null;
 
-                const newMins = originalMins + shiftMins;
-                const newTimeStr = minutesToTime(newMins);
-                const status = (newMins >= 1440) ? 'cutoff' : 'shifted';
+                if (savedIndices.includes(i) && actualTimes[i]) {
+                    // 已打卡：显示打卡那一刻的时间，并更新偏移量影响后续
+                    displayTime = actualTimes[i];
+                    currentShift = timeToMins(actualTimes[i]) - origMins;
+                    status = 'actual';
+                    originalTime = t.t;
+                } else {
+                    // 未打卡：基于当前的最新偏移量计算预估时间
+                    const shiftedMins = origMins + currentShift;
+                    displayTime = minsToTime(shiftedMins);
+                    status = currentShift !== 0 ? 'shifted' : '';
+                    if(currentShift !== 0) originalTime = t.t;
+                }
 
-                return { ...task, displayTime: newTimeStr, originalTime: task.t, status: status };
+                return { ...t, displayTime, originalTime, status };
             });
 
-            return { tasks: newTasks, shiftMins: shiftMins };
+            return { tasks: processed, shift: currentShift };
         }
 
-        // --- 4. 渲染与交互 ---
+        // --- 4. 渲染逻辑 ---
         function render() {
-            const today = new Date();
-            const isToday = formatDate(currentViewDate) === formatDate(today);
+            const isToday = formatDate(currentViewDate) === formatDate(new Date());
+            const raw = getRawTasks(currentViewDate);
+            const processed = processTasksWithDynamicShift(raw.tasks, isToday);
             
-            // Header
+            // 更新标题
             document.getElementById('headerDate').innerText = `${currentViewDate.getMonth()+1}月${currentViewDate.getDate()}日`;
-            const diffDays = Math.ceil((EXAM_DATE - currentViewDate) / (1000*60*60*24));
-            let subText = isToday ? `距省考 ${diffDays} 天` : (currentViewDate > today ? `未来 · 距省考 ${diffDays} 天` : `回顾 · 距省考 ${diffDays} 天`);
-            document.getElementById('headerSub').innerText = subText;
+            const diff = Math.ceil((EXAM_DATE - currentViewDate)/86400000);
+            document.getElementById('headerSub').innerText = isToday ? `距省考 ${diff} 天` : (currentViewDate > new Date() ? `未来计划` : `往日回顾`);
             document.getElementById('backTodayBtn').style.display = isToday ? 'none' : 'block';
 
-            // Data Processing
-            const rawData = getRawTasks(currentViewDate);
-            const processed = processTasksWithTimeShift(rawData.tasks, isToday);
-            const displayTasks = processed.tasks;
-            
-            // Notice
+            // 顺延通知
             const noticeEl = document.getElementById('shiftNotice');
-            if (processed.shiftMins > 0) {
-                const h = Math.floor(processed.shiftMins / 60);
-                const m = processed.shiftMins % 60;
-                noticeEl.innerHTML = `<span>🐌 晚起自动调节：日程已顺延 <b>+${h}小时${m}分</b></span>`;
+            if (processed.shift !== 0) {
+                noticeEl.innerText = `🔄 后续任务已随打卡节奏${processed.shift > 0 ? '顺延':'提前'} ${Math.abs(processed.shift)} 分钟`;
                 noticeEl.classList.add('active');
             } else { noticeEl.classList.remove('active'); }
 
-            // Phase Card
-            document.getElementById('phaseContainer').innerHTML = rawData.info.title ? `
+            // 阶段渲染
+            document.getElementById('phaseContainer').innerHTML = `
                 <div class="phase-card">
                     <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                        <div class="phase-title">${rawData.info.title}</div>
-                        <div class="phase-tag">${rawData.info.tag}</div>
+                        <div class="phase-title">${raw.info.title}</div>
+                        <div class="phase-tag">${raw.info.tag}</div>
                     </div>
-                    <div class="phase-desc">${rawData.info.desc}</div>
-                </div>` : '';
+                    <div class="phase-desc">${raw.info.desc}</div>
+                </div>`;
 
-            // Task List
+            // 列表渲染
+            const k = 'hunan_exam_' + formatDate(currentViewDate);
+            const saved = JSON.parse(localStorage.getItem(k) || '[]');
             const listEl = document.getElementById('taskList');
             listEl.innerHTML = '';
             
-            if (displayTasks.length === 0) {
-                listEl.innerHTML = '<div class="empty-state">无安排</div>';
-                document.getElementById('progressBar').style.width = '0%';
-                return;
-            }
-
-            const storageKey = 'hunan_exam_' + formatDate(currentViewDate);
-            const savedState = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            let completedCount = 0;
-
-            displayTasks.forEach((task, index) => {
-                const isChecked = savedState.includes(index);
-                if (isChecked) completedCount++;
-
-                const showTime = task.displayTime || task.t;
-                const isShifted = task.status === 'shifted' || task.status === 'cutoff';
-                const originalHtml = isShifted ? `<span class="original-time">${task.originalTime}</span>` : '';
+            processed.tasks.forEach((t, i) => {
+                const checked = saved.includes(i);
+                const isLocked = i > 0 && !saved.includes(i-1) && !checked;
                 
-                let timeClass = 'task-time';
-                if (task.status === 'shifted') timeClass += ' shifted';
-                if (task.status === 'cutoff') timeClass += ' cutoff';
-
                 listEl.innerHTML += `
-                    <div class="task-item ${isChecked ? 'completed' : ''}" onclick="toggleTask(${index})">
+                    <div class="task-item ${checked?'completed':''} ${isLocked?'locked':''}" onclick="toggleTask(${i})">
                         <div class="checkbox"></div>
                         <div class="task-content">
                             <div class="task-header">
-                                <span class="task-title">${task.title}</span>
-                                <div style="display:flex;align-items:center">
-                                    ${originalHtml}
-                                    <span class="${timeClass}">${showTime}</span>
-                                </div>
+                                <span class="task-title">${t.title}</span>
+                                <span class="task-time ${t.status}">
+                                    ${t.originalTime ? `<span class="original-time">${t.originalTime}</span>` : ''}
+                                    ${t.displayTime}
+                                </span>
                             </div>
-                            <div class="task-detail">${task.detail}</div>
+                            <div class="task-detail">${t.detail}</div>
                         </div>
                     </div>`;
             });
-
-            const pct = Math.round((completedCount / displayTasks.length) * 100);
-            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressBar').style.width = (raw.tasks.length ? (saved.length/raw.tasks.length*100) : 0) + '%';
         }
 
-        function toggleTask(index) {
-            const key = 'hunan_exam_' + formatDate(currentViewDate);
-            let saved = JSON.parse(localStorage.getItem(key) || '[]');
+        // --- 5. 交互逻辑 (顺向打卡与重置) ---
+        function toggleTask(i) {
+            const dateKey = formatDate(currentViewDate);
+            const k = 'hunan_exam_' + dateKey;
+            const tk = 'hunan_actual_times_' + dateKey;
             
-            if (saved.includes(index)) saved = saved.filter(i => i !== index);
-            else { saved.push(index); showToast(); }
+            let saved = JSON.parse(localStorage.getItem(k) || '[]');
+            let actualTimes = JSON.parse(localStorage.getItem(tk) || '{}');
             
-            localStorage.setItem(key, JSON.stringify(saved));
+            if (saved.includes(i)) {
+                // 取消打卡：必须是最后一个
+                if (saved.some(index => index > i)) {
+                    showToast("⚠️ 请先取消后续任务打卡", "warning");
+                    return;
+                }
+                saved = saved.filter(x => x !== i);
+                delete actualTimes[i];
+            } else {
+                // 打卡：必须按顺序
+                if (i > 0 && !saved.includes(i - 1)) {
+                    showToast("🔒 请按顺序完成前置任务", "warning");
+                    return;
+                }
+                saved.push(i);
+                const now = new Date();
+                actualTimes[i] = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                showToast("✅ 已同步后续任务时间");
+            }
+            
+            localStorage.setItem(k, JSON.stringify(saved));
+            localStorage.setItem(tk, JSON.stringify(actualTimes));
             render();
         }
 
-        function showToast() {
-            const t = document.getElementById('toast');
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 1000);
-        }
-
-        function changeDay(offset) {
-            currentViewDate.setDate(currentViewDate.getDate() + offset);
-            render();
-        }
-
-        function goToToday() { currentViewDate = new Date(); render(); }
-
-        function resetDay() {
-            if(confirm("确定要重置今日打卡记录吗？")) {
-                localStorage.removeItem('hunan_exam_' + formatDate(currentViewDate));
+        function setManualShift() {
+            const time = document.getElementById('manualStartTime').value;
+            if(time) {
+                localStorage.setItem('manual_start_' + formatDate(currentViewDate), time);
                 render();
             }
         }
 
-        // --- 5. 备份与恢复 (新功能) ---
-        function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function clearManualShift() {
+            if(!confirm("确定要重置今日所有打卡时间与偏移吗？")) return;
+            const dk = formatDate(currentViewDate);
+            localStorage.removeItem('manual_start_' + dk);
+            localStorage.removeItem('hunan_exam_' + dk);
+            localStorage.removeItem('hunan_actual_times_' + dk);
+            if(document.getElementById('manualStartTime')) document.getElementById('manualStartTime').value = "";
+            render();
+            showToast("🔄 已重置为初始计划");
+        }
 
+        // 其他辅助逻辑 (保持原样)
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.background = type === 'warning' ? '#E65100' : 'rgba(0,0,0,0.8)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1500);
+        }
+        function switchTab(t) { activeTab = t; refreshHistoryList(); }
+        function openHistoryModal() { document.getElementById('historyModal').classList.add('active'); refreshHistoryList(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function changeDay(o) { currentViewDate.setDate(currentViewDate.getDate()+o); render(); }
+        function goToToday() { currentViewDate = new Date(); render(); }
+        function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
+        
         function exportData() {
-            const data = {};
-            // 遍历所有localStorage中相关的key
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('hunan_exam_')) {
-                    data[key] = localStorage.getItem(key);
-                }
+            let data = {};
+            for(let i=0; i<localStorage.length; i++){
+                let k = localStorage.key(i);
+                if(k.startsWith('hunan_')) data[k] = localStorage.getItem(k);
             }
-            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
+            const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
             const a = document.createElement('a');
-            a.href = url;
+            a.href = URL.createObjectURL(blob);
             a.download = `省考打卡备份_${formatDate(new Date())}.json`;
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            closeModal('settingsModal');
         }
 
         function importData(input) {
-            const file = input.files[0];
-            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    for (const key in data) {
-                        localStorage.setItem(key, data[key]);
-                    }
-                    alert("✅ 数据恢复成功！");
-                    location.reload();
-                } catch (err) {
-                    alert("❌ 文件格式错误，请使用正确的备份文件。");
-                }
+                    for(let k in data) localStorage.setItem(k, data[k]);
+                    alert("恢复成功"); location.reload();
+                } catch(e) { alert("格式错误"); }
             };
-            reader.readAsText(file);
+            reader.readAsText(input.files[0]);
         }
 
-        // --- 6. 历史日历 ---
-        function showHistory() {
-            const listEl = document.getElementById('historyListContent');
-            listEl.innerHTML = '';
+        function refreshHistoryList() {
+            const body = document.getElementById('historyContent');
+            body.innerHTML = '';
             let itr = new Date(START_DATE);
-            const today = new Date();
-            const dates = [];
-            
-            if (today < START_DATE) {
-                listEl.innerHTML = '<div class="empty-state">计划尚未开始</div>';
-            } else {
-                while (itr <= today) { dates.push(new Date(itr)); itr.setDate(itr.getDate() + 1); }
-                dates.reverse();
-                dates.forEach(d => {
-                    const k = formatDate(d);
-                    const raw = getRawTasks(d);
-                    const total = raw.tasks.length;
-                    if(total > 0) {
-                        const saved = JSON.parse(localStorage.getItem('hunan_exam_'+k) || '[]');
-                        const count = saved.length;
-                        const pct = Math.round((count/total)*100);
-                        let cls = pct>=90 ? 'h-perfect' : (pct>=50 ? 'h-good' : 'h-bad');
-                        listEl.innerHTML += `
-                        <div class="history-item" onclick="currentViewDate=new Date('${k}');render();closeModal('historyModal')">
-                            <div style="display:flex;align-items:center"><span class="h-status ${cls}"></span> <span style="font-weight:500">${d.getMonth()+1}月${d.getDate()}日</span></div>
-                            <div style="font-size:0.85rem;font-weight:bold;color:#666">${pct}%</div>
-                        </div>`;
-                    }
-                });
+            while (itr <= new Date()) {
+                const d = new Date(itr); const k = formatDate(d);
+                const saved = JSON.parse(localStorage.getItem('hunan_exam_'+k) || '[]');
+                body.innerHTML += `<div class="history-item" onclick="viewDate('${k}')">
+                    <span>${d.getMonth()+1}月${d.getDate()}日</span>
+                    <span>${saved.length}个任务</span>
+                </div>`;
+                itr.setDate(itr.getDate()+1);
             }
-            document.getElementById('historyModal').classList.add('active');
         }
+        function viewDate(k) { currentViewDate = new Date(k); render(); closeModal('historyModal'); }
 
-        // Init
         render();
         setInterval(() => { if(formatDate(currentViewDate) === formatDate(new Date())) render(); }, 60000);
-
     </script>
 </body>
 </html>
