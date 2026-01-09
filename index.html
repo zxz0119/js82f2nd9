@@ -76,7 +76,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: none; z-index: 10;
         }
 
-        /* --- 任务列表与卡片 --- */
+        /* --- 任务列表 --- */
         .task-list { padding: 0 15px; }
         .task-item {
             background: white; margin: 12px 0; padding: 16px;
@@ -107,7 +107,6 @@
         .original-time { font-size: 0.7rem; color: #999; text-decoration: line-through; margin-right: 5px; }
         .task-detail { font-size: 0.85rem; color: #666; line-height: 1.4; }
 
-        /* 阶段卡片 */
         .phase-card {
             background: white; margin: 20px 15px 15px 15px; padding: 18px;
             border-radius: 16px; border-left: 5px solid var(--secondary);
@@ -117,7 +116,6 @@
         .phase-tag { background: #e3f2fd; color: var(--secondary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
         .phase-desc { font-size: 0.9rem; color: var(--subtext); margin-top: 5px; }
 
-        /* --- 弹窗系统 --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 999;
@@ -131,12 +129,8 @@
         .modal-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
         .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: white; }
-        
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
-        .history-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer;
-        }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
         .h-status { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; display:inline-block; }
 
         .toast {
@@ -144,18 +138,8 @@
             background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
             border-radius: 25px; font-size: 0.9rem; z-index: 1000;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
-            text-align: center;
         }
         .toast.show { opacity: 1; }
-        .fab {
-            position: fixed; bottom: 30px; right: 20px;
-            width: 54px; height: 54px; border-radius: 50%;
-            background: var(--primary); color: white;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4); 
-            font-size: 24px; cursor: pointer; z-index: 100;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -191,9 +175,6 @@
 
     <div id="phaseContainer"></div>
     <div class="task-list" id="taskList"></div>
-    <div class="fab" onclick="goToToday()">
-      📅
-    </div>
 
     <div class="modal-overlay" id="historyModal">
         <div class="modal-card">
@@ -228,10 +209,9 @@
         const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const timeToMins = s => { if(!s || !s.includes(':')) return -1; const [h,m]=s.split(':').map(Number); return h*60+m; };
         
-        // --- 修复：顺延不跨天显示 ---
         const minsToTime = m => { 
-            if (m >= 1440) return "23:59"; // 如果超过24:00，锁定为23:59
-            let totalMins = Math.max(0, m); // 确保不为负数
+            if (m >= 1440) return "23:59"; 
+            let totalMins = Math.max(0, Math.floor(m)); 
             let h=Math.floor(totalMins/60), mm=totalMins%60; 
             return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; 
         };
@@ -242,7 +222,7 @@
             return (diff % 2 === 0) ? "💤 休息日 (散步/拉伸)" : "🔥 力量+有氧 (1小时)";
         }
 
-        // --- 2. 任务列表逻辑 ---
+        // --- 2. 计划内容 ---
         function getRawTasks(date) {
             const month = date.getMonth() + 1;
             const day = date.getDate();
@@ -341,7 +321,7 @@
                     originalTime = t.t;
                 } else {
                     const shiftedMins = origMins + currentShift;
-                    displayTime = minsToTime(shiftedMins); // 这里调用修复后的minsToTime
+                    displayTime = minsToTime(shiftedMins); 
                     status = currentShift !== 0 ? 'shifted' : '';
                     if(currentShift !== 0) originalTime = t.t;
                 }
@@ -432,9 +412,34 @@
                 if (i > 0 && !saved.includes(i - 1)) {
                     showToast("🔒 请按顺序打卡", "warning"); return;
                 }
-                saved.push(i);
+
+                // --- 修改点：弹出时间选择框 ---
+                let defaultTime = "";
                 const now = new Date();
-                actualTimes[i] = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                
+                const manualStart = localStorage.getItem('manual_start_' + dateKey);
+                // 第一个计划默认使用手动启动点，其他任务默认当前现实时间
+                if (i === 0 && manualStart) {
+                    defaultTime = manualStart;
+                } else {
+                    defaultTime = currentTime;
+                }
+
+                const userTime = prompt("请输入此任务的打卡时间 (格式 HH:mm):", defaultTime);
+                
+                // 用户点击取消则不打卡
+                if (userTime === null) return;
+
+                // 简单的正则验证 HH:mm
+                if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(userTime)) {
+                    actualTimes[i] = userTime;
+                } else {
+                    alert("时间格式错误 (正确示例 08:30)，已自动使用默认时间");
+                    actualTimes[i] = defaultTime;
+                }
+
+                saved.push(i);
             }
             localStorage.setItem(k, JSON.stringify(saved));
             localStorage.setItem(tk, JSON.stringify(actualTimes));
@@ -463,7 +468,6 @@
             setTimeout(() => t.classList.remove('show'), 1500);
         }
 
-        // --- 修复：确保所有 hunan_ 开头（包含时间记录）和启动点都备份 ---
         function exportData() {
             let data = {};
             for(let i=0; i<localStorage.length; i++){
@@ -519,3 +523,4 @@
     </script>
 </body>
 </html>
+
