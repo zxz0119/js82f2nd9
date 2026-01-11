@@ -12,26 +12,29 @@
         }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 160px; -webkit-tap-highlight-color: transparent; }
         
-        /* --- 头部 --- */
+        /* --- 头部区域 --- */
         .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 15px 20px 25px 20px; border-radius: 0 0 25px 25px; position: relative; box-shadow: 0 4px 15px rgba(211,47,47,0.2); z-index: 10; }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .app-title { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
-        .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
+        .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; border:none; }
         .date-nav { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 10px; margin-bottom: 12px; }
         .nav-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0 10px; line-height: 1; }
         .progress-bar-bg { height: 6px; background: rgba(0,0,0,0.2); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: #FFD700; width: 0%; transition: width 0.4s; }
-        .back-today { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #FFD700; color: #b71c1c; padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: none; border: 1px solid #b71c1c; z-index: 11; }
+        .back-today { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #FFD700; color: #b71c1c; padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: none; border: 1px solid #b71c1c; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index:11; }
 
-        /* --- 列表与卡片 --- */
+        /* --- 任务项样式 --- */
         .phase-card { background: white; margin: 20px 15px 10px 15px; padding: 15px; border-radius: 16px; border-left: 5px solid var(--secondary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .phase-title { font-weight: bold; color: var(--secondary); font-size: 1rem; }
+        .phase-desc { font-size: 0.8rem; color: #666; margin-top: 5px; line-height: 1.4; }
+
         .task-list { padding: 0 15px; }
         .task-item { background: white; margin: 15px 0; padding: 16px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 6px solid #ddd; position: relative; transition: 0.3s; }
         .task-item.in-progress { border-left-color: var(--process); background: #f0f9ff; }
         .task-item.completed { border-left-color: var(--success); background: #f9fff9; }
         
         .del-day-btn { position: absolute; top: 12px; right: 12px; color: #ff5252; font-size: 0.9rem; cursor: pointer; border: 1px solid #ffebee; background: #fff; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
-        .status-btn { width: 62px; height: 62px; border: 2px solid #ddd; border-radius: 14px; margin-right: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; background: white; color: #999; text-align: center; box-sizing: border-box; }
+        .status-btn { width: 64px; height: 64px; border: 2px solid #ddd; border-radius: 16px; margin-right: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; background: white; color: #999; text-align: center; box-sizing: border-box; }
         .task-item.completed .status-btn { background: var(--success); border-color: var(--success); color: white; }
         .task-item.in-progress .status-btn { border-color: var(--process); color: var(--process); }
 
@@ -40,28 +43,32 @@
         .duration-badge { font-size: 0.7rem; color: white; background: var(--warning); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .task-note-area { width: 100%; border: none; background: #f8f8f8; border-radius: 10px; padding: 12px; font-size: 0.85rem; margin-top: 10px; resize: none; outline: none; box-sizing: border-box; color: #555; }
 
-        /* --- 底部选择器 --- */
+        /* --- 底部表单模态框 --- */
         .bottom-modal { position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 2000; border-radius: 25px 25px 0 0; padding: 20px 20px 40px 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 25px rgba(0,0,0,0.15); }
         .bottom-modal.active { transform: translateY(0); }
         .modal-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1999; display: none; backdrop-filter: blur(2px); }
         
-        .form-input { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; background: #fff; }
-        .btn-confirm { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .form-row { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 6px; font-weight: bold; }
+        .form-input { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; background:#fff; }
+        .btn-confirm { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(211,47,47,0.3); }
 
+        /* --- 底部DIY操作栏 --- */
         .daily-action-bar { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .btn-add-daily { width: 100%; padding: 14px; background: #fff; color: var(--secondary); border: 1px dashed var(--secondary); border-radius: 14px; font-weight: bold; cursor: pointer; }
+        .btn-add-daily { width: 100%; padding: 14px; background: #fff; color: var(--secondary); border: 1px dashed var(--secondary); border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .btn-clear-daily { color: #999; border: none; background: none; font-size: 0.8rem; text-decoration: underline; margin-bottom: 10px; cursor: pointer; width: 100%; text-align: center; }
 
-        /* --- 弹窗基础 --- */
+        /* --- 大模态框基础 --- */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-card { background: white; width: 94%; max-width: 500px; height: 85vh; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-card { background: white; width: 94%; max-width: 500px; height: 85vh; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-header { padding: 18px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; background: #fafafa; }
         .modal-tabs { display: flex; background: #f0f0f0; padding: 5px; gap: 5px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 0.85rem; background: none; color: #666; }
-        .tab-btn.active { background: white; color: var(--primary); font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 0.85rem; background: none; color: #666; transition: 0.3s; }
+        .tab-btn.active { background: white; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .modal-body { flex: 1; overflow-y: auto; padding: 15px; }
-        .edit-phase-section { border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fafafa; }
         
+        .edit-phase-section { border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fafafa; }
         .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 24px; border-radius: 25px; z-index: 3000; opacity: 0; pointer-events: none; transition: 0.3s; font-weight: bold; }
         .toast.show { opacity: 1; }
     </style>
@@ -70,7 +77,7 @@
 
     <div class="header">
         <div class="header-top">
-            <div class="app-title">2026 湖南省考记录</div>
+            <div class="app-title">2026 湖南省考计时笔记</div>
             <div class="btn-group">
                 <button class="icon-btn" onclick="openPlanModal()">规划</button>
                 <button class="icon-btn" onclick="openHistoryModal()">日历</button>
@@ -80,8 +87,8 @@
         <div class="date-nav">
             <button class="nav-btn" onclick="changeDay(-1)">‹</button>
             <div style="text-align:center">
-                <div id="headerDate" style="font-size: 1.2rem; font-weight: 700;">--月--日</div>
-                <div id="headerSub" style="font-size: 0.8rem; opacity: 0.9;">距省考 -- 天</div>
+                <div id="headerDate" style="font-size: 1.2rem; font-weight: 700;">1月1日</div>
+                <div id="headerSub" style="font-size: 0.8rem; opacity: 0.9;">距省考 0 天</div>
             </div>
             <button class="nav-btn" onclick="changeDay(1)">›</button>
         </div>
@@ -94,36 +101,43 @@
     
     <div class="daily-action-bar">
         <button class="btn-add-daily" onclick="openAddTaskModal()">+ 为今日增加特殊任务 (滑动选时)</button>
-        <button onclick="clearDailyTasks()" style="color:#999; border:none; background:none; font-size:0.8rem; margin: 10px auto; width: 100%; text-align: center; cursor: pointer;">🗑️ 一键清空今日列表</button>
+        <button class="btn-clear-daily" onclick="clearDailyTasks()">🗑️ 一键清空今日列表 (不影响模板)</button>
     </div>
 
     <div class="modal-mask" id="globalMask" onclick="closeAllBottomModals()"></div>
     <div class="bottom-modal" id="timePickerModal">
         <div id="timeModalTitle" style="font-weight:bold; text-align:center; color:var(--secondary); margin-bottom:15px;">确认打卡时间</div>
         <input type="time" id="nativeTimeInput" class="form-input" style="height:70px; font-size:2rem; text-align:center;">
-        <button class="btn-confirm" onclick="confirmTimeSelection()">确认打卡</button>
+        <button class="btn-confirm" onclick="confirmTimeSelection()">确认并保存打卡</button>
         <button onclick="closeAllBottomModals()" style="width:100%; border:none; background:none; color:#999; margin-top:15px;">取消</button>
     </div>
 
     <div class="bottom-modal" id="addTaskFormModal">
         <div style="font-weight:bold; text-align:center; color:var(--secondary); margin-bottom:15px;">新增今日任务</div>
-        <div style="margin-bottom:12px;"><label style="font-size:0.85rem; color:#666;">任务名称</label><input type="text" id="new_title" class="form-input"></div>
-        <div style="margin-bottom:12px;"><label style="font-size:0.85rem; color:#666;">计划时间 (可滑动)</label><input type="time" id="new_time" class="form-input"></div>
-        <div style="display:flex; align-items:center; gap:10px; background:#f9f9f9; padding:12px; border-radius:12px;">
-            <input type="checkbox" id="new_isDur" style="width:20px; height:20px;"><label for="new_isDur" style="font-size:0.9rem; font-weight:bold;">开启计时模式 (记起止)</label>
+        <div class="form-row">
+            <label class="form-label">任务名称</label>
+            <input type="text" id="new_title" class="form-input" placeholder="输入名称...">
         </div>
-        <button class="btn-confirm" onclick="submitNewTaskDaily()">加入清单</button>
-        <button onclick="closeAllBottomModals()" style="width:100%; border:none; background:none; color:#999; margin-top:15px;">取消并返回</button>
+        <div class="form-row">
+            <label class="form-label">计划参考时间 (可滑动)</label>
+            <input type="time" id="new_time" class="form-input">
+        </div>
+        <div class="form-row" style="display:flex; align-items:center; gap:10px; background:#f9f9f9; padding:12px; border-radius:12px;">
+            <input type="checkbox" id="new_isDur" style="width:22px; height:22px;">
+            <label for="new_isDur" style="font-size:0.95rem; font-weight:bold;">开启计时模式 (记起止并算时长)</label>
+        </div>
+        <button class="btn-confirm" onclick="submitNewTaskDaily()">加入今日清单</button>
+        <button onclick="closeAllBottomModals()" style="width:100%; border:none; background:none; color:#999; margin-top:15px;">取消</button>
     </div>
 
     <div class="modal-overlay" id="planModal"><div class="modal-card">
-        <div class="modal-header"><span>阶段任务模板 (支持滑动选时)</span><button onclick="closeModal('planModal')" style="border:none;background:none;font-size:1.5rem">✕</button></div>
+        <div class="modal-header"><span>阶段规划模板 (支持滑动选时)</span><button onclick="closeModal('planModal')" style="border:none;background:none;font-size:1.5rem">✕</button></div>
         <div class="modal-body" id="planEditorBody"></div>
-        <button onclick="saveAllPlans()" class="btn-confirm" style="border-radius:0;">💾 保存全局模板配置</button>
+        <button onclick="saveAllPlans()" class="btn-confirm" style="border-radius:0;">💾 保存全局模板</button>
     </div></div>
 
     <div class="modal-overlay" id="historyModal"><div class="modal-card">
-        <div class="modal-header"><span>备考日历系统</span><button onclick="closeModal('historyModal')" style="border:none;background:none;font-size:1.5rem">✕</button></div>
+        <div class="modal-header"><span>备考全时段日历</span><button onclick="closeModal('historyModal')" style="border:none;background:none;font-size:1.5rem">✕</button></div>
         <div class="modal-tabs">
             <button class="tab-btn active" id="tabPast" onclick="switchCalendar('past')">备考足迹</button>
             <button class="tab-btn" id="tabFuture" onclick="switchCalendar('future')">预见未来</button>
@@ -131,19 +145,17 @@
         <div class="modal-body" id="historyContent"></div>
     </div></div>
 
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal-card" style="height: auto; padding: 25px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">数据备份管理</h3>
-                <button onclick="closeModal('settingsModal')" style="border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
-            </div>
-            <button onclick="exportData()" class="btn-confirm" style="background:var(--secondary); margin-bottom:12px;">📤 导出全量备份 (.json)</button>
-            <button onclick="document.getElementById('importFile').click()" class="btn-confirm" style="background:#eee; color:#333; box-shadow:none;">📥 导入恢复数据</button>
-            <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-            <button onclick="resetAllData()" style="color:red; border:none; background:none; width:100%; margin-top:25px; font-size:0.9rem; font-weight:bold;">🗑️ 重置清空所有数据</button>
-            <button onclick="closeModal('settingsModal')" style="width:100%; border:none; background:#f5f5f5; color:#666; margin-top:15px; padding:12px; border-radius:10px; font-weight:bold;">取消</button>
+    <div class="modal-overlay" id="settingsModal"><div class="modal-card" style="height: auto; padding: 25px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">数据备份管理</h3>
+            <button onclick="closeModal('settingsModal')" style="border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
         </div>
-    </div>
+        <button onclick="exportData()" class="btn-confirm" style="background:var(--secondary); margin-bottom:12px;">📤 导出全量备份 (.json)</button>
+        <button onclick="document.getElementById('importFile').click()" class="btn-confirm" style="background:#eee; color:#333; box-shadow:none;">📥 导入恢复数据</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(this)">
+        <button onclick="resetAllData()" style="color:red; border:none; background:none; width:100%; margin-top:25px; font-size:0.9rem; font-weight:bold;">🗑️ 重置清空所有本地数据</button>
+        <button onclick="closeModal('settingsModal')" style="width:100%; border:none; background:#f5f5f5; color:#666; margin-top:15px; padding:12px; border-radius:10px; font-weight:bold;">取消并关闭</button>
+    </div></div>
 
     <div class="toast" id="toast">同步成功</div>
 
@@ -154,9 +166,9 @@
         let calType = 'past';
         let activeContext = { idx: -1, planned: '', isDur: false };
 
-        // --- 核心业务：全阶段 Phase 详细文案 ---
+        // --- 【文案 100% 还原】 ---
         const DEFAULT_PLAN_CONFIG = [
-            { id: 0, title: "Phase 0：物资与身心整备", desc: "工欲善其事，清理书桌，准备0.5mm黑笔、2B铅笔、补剂。", range: [1,1,1,6], tasks: [
+            { id: 0, title: "Phase 0：物资与身心整备", desc: "工欲善其事，必先利其器。清理书桌，准备0.5mm黑笔、2B铅笔、维B补剂。", range: [1,1,1,6], tasks: [
                 {t:"08:30", title:"📅 计划通览 (阅读重心)", isDuration:false},
                 {t:"10:00", title:"🖊️ 物资采购 (黑笔/错题本)", isDuration:false},
                 {t:"14:00", title:"🧹 环境清理 (清空书桌)", isDuration:false},
@@ -164,19 +176,20 @@
                 {t:"20:00", title:"📱 戒断设置 (限时App)", isDuration:false},
                 {t:"22:30", title:"💤 强制早睡 (调生物钟)", isDuration:false}
             ]},
-            { id: 1, title: "Phase 1：基石修复期", desc: "找肌肉记忆。资料公式、数量真题、常识框架。", range: [1,7,1,27], tasks: [
+            { id: 1, title: "Phase 1：基石修复期", desc: "找回肌肉记忆。侧重资料分析公式、数量关系真题、常识框架。", range: [1,7,1,27], tasks: [
                 {t:"07:30", title:"起居启动 (400ml温水)", isDuration:false},
                 {t:"08:00", title:"晨读湘情 (三高四新)", isDuration:false},
                 {t:"08:30", title:"资料分析 (默写公式)", isDuration:true},
-                {t:"10:30", title:"休息远眺 (5分钟)", isDuration:false},
-                {t:"10:45", title:"数量关系 (行程真题)", isDuration:true},
+                {t:"10:30", title:"休息远眺 (远眺5分钟)", isDuration:false},
+                {t:"10:45", title:"数量关系 (行程/经济真题)", isDuration:true},
+                {t:"12:00", title:"午餐午休 (七分饱)", isDuration:false},
                 {t:"14:00", title:"言语判断 (逻辑填空)", isDuration:true},
                 {t:"16:00", title:"深度复盘 (重做错题)", isDuration:true},
                 {t:"17:30", title:"运动时间 (力量+有氧)", isDuration:false},
                 {t:"20:00", title:"图形政治 (图推+网课)", isDuration:false},
                 {t:"23:00", title:"晚安休息 (不熬夜)", isDuration:false}
             ]},
-            { id: 2, title: "Phase 2：春节保手感", desc: "弹性学习。每天保持资料和图推的手感。", range: [1,28,2,3], tasks: [
+            { id: 2, title: "Phase 2：春节保手感", desc: "弹性学习。每天保持资料和图推的手感即可。", range: [1,28,2,3], tasks: [
                 {t:"09:00", title:"防手生训练 (资料+图推)", isDuration:true},
                 {t:"14:00", title:"湖南常识 (新湖南App)", isDuration:false},
                 {t:"16:00", title:"居家运动 (深蹲/俯卧撑)", isDuration:false}
@@ -202,6 +215,7 @@
         const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const timeToMins = s => { if(!s || !s.includes(':')) return 0; const [h,m]=s.split(':').map(Number); return h*60+m; };
 
+        // --- 核心渲染逻辑 ---
         function getDailyTaskList(date) {
             const dk = formatDate(date); const custom = localStorage.getItem('hunan_daily_tasks_' + dk);
             if (custom) return JSON.parse(custom);
@@ -213,11 +227,11 @@
         function render() {
             const dk = formatDate(currentViewDate); const tasks = getDailyTaskList(currentViewDate);
             const plans = getPlans(); const m = currentViewDate.getMonth()+1; const d = currentViewDate.getDate();
-            let pInfo = plans.find(p => { const [sm,sd,em,ed]=p.range; return (m*100+d) >= (sm*100+sd) && (m*100+d) <= (em*100+ed); }) || {title:"备考期", desc:"自由安排"};
+            let pInfo = plans.find(p => { const [sm,sd,em,ed]=p.range; return (m*100+d) >= (sm*100+sd) && (m*100+d) <= (em*100+ed); }) || {title:"自由备考期", desc:"自主查漏补缺"};
 
             document.getElementById('headerDate').innerText = `${m}月${d}日`;
             const diff = Math.ceil((EXAM_DATE - currentViewDate)/86400000);
-            document.getElementById('headerSub').innerText = diff >= 0 ? `距 3.14 省考 ${diff} 天` : "省考已结束";
+            document.getElementById('headerSub').innerText = diff >= 0 ? `距 3.14 省考 ${diff} 天` : "省考已顺利完成";
             document.getElementById('backTodayBtn').style.display = (dk === formatDate(new Date())) ? 'none' : 'block';
             document.getElementById('phaseContainer').innerHTML = `<div class="phase-card"><div class="phase-title">${pInfo.title}</div><div class="phase-desc">${pInfo.desc}</div></div>`;
 
@@ -238,7 +252,7 @@
                         <div style="display:flex">
                             <div class="status-btn" onclick="triggerTimePicker(${i},'${t.t}',${isDur})">${btnLbl}</div>
                             <div style="flex:1">
-                                <span style="font-size:0.7rem;color:#999">参考时间: ${t.t}</span>
+                                <span style="font-size:0.7rem;color:#999">参考: ${t.t}</span>
                                 <input type="text" class="task-input-title" value="${t.title}" onchange="editTaskDaily(${i}, this.value)">
                                 <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
                                     ${s[i]?`<span class="time-badge">始 ${s[i]}</span>`:''}
@@ -247,23 +261,23 @@
                                 </div>
                             </div>
                         </div>
-                        <textarea class="task-note-area" rows="1" placeholder="笔记复盘..." onchange="saveNoteDaily(${i}, this.value)">${notes[i]||''}</textarea>
+                        <textarea class="task-note-area" rows="1" placeholder="心得复盘..." onchange="saveNoteDaily(${i}, this.value)">${notes[i]||''}</textarea>
                     </div>`;
             });
             document.getElementById('progressBar').style.width = (tasks.length ? (done.length/tasks.length*100) : 0) + '%';
         }
 
-        // --- 时间滑动核心 ---
+        // --- 打卡功能 (滑动) ---
         function triggerTimePicker(idx, planned, isDur) {
             const dk = formatDate(currentViewDate);
             let s = JSON.parse(localStorage.getItem('hunan_start_times_'+dk)||'{}');
             let e = JSON.parse(localStorage.getItem('hunan_actual_times_'+dk)||'{}');
             activeContext = { idx, planned, isDur };
-            if (!isDur && s[idx]) { if(confirm("重置标记？")){ delete s[idx]; clearEntry(idx,dk); } return; }
-            if (isDur && s[idx] && e[idx]) { if(confirm("重置计时？")){ delete s[idx]; delete e[idx]; clearEntry(idx,dk); } return; }
+            if (!isDur && s[idx]) { if(confirm("重置此标记？")){ delete s[idx]; clearEntry(idx,dk); } return; }
+            if (isDur && s[idx] && e[idx]) { if(confirm("重置此时段计时？")){ delete s[idx]; delete e[idx]; clearEntry(idx,dk); } return; }
             const now = new Date();
             document.getElementById('nativeTimeInput').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            document.getElementById('timeModalTitle').innerText = isDur ? (s[idx]?"结束打卡":"开始打卡") : "单次标记";
+            document.getElementById('timeModalTitle').innerText = isDur ? (s[idx]?"确认结束时间":"确认开始时间") : "确认打卡时间";
             document.getElementById('timePickerModal').classList.add('active');
             document.getElementById('globalMask').style.display = 'block';
         }
@@ -282,28 +296,28 @@
             closeAllBottomModals(); render();
         }
 
-        // --- 模板编辑 (支持滑动选时) ---
+        // --- 模板配置 (滑动选时) ---
         let editingPlans = [];
         function openPlanModal() { editingPlans = getPlans(); renderPlanEditor(); document.getElementById('planModal').classList.add('active'); }
         function renderPlanEditor() {
             document.getElementById('planEditorBody').innerHTML = editingPlans.map((p, pIdx) => `
                 <div class="edit-phase-section">
-                    <div style="font-weight:bold; color:var(--primary-dark); margin-bottom:10px;">${p.title}</div>
+                    <div style="font-weight:bold; color:var(--primary-dark); margin-bottom:8px;">${p.title}</div>
                     ${p.tasks.map((t, tIdx) => `
                         <div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;">
-                            <input type="time" value="${t.t}" class="form-input" style="width:110px; padding:6px;" onchange="editingPlans[${pIdx}].tasks[${tIdx}].t=this.value">
-                            <input type="text" value="${t.title}" class="form-input" style="flex:1; padding:6px;" onchange="editingPlans[${pIdx}].tasks[${tIdx}].title=this.value">
+                            <input type="time" value="${t.t}" class="form-input" style="width:110px; padding:6px; font-size:0.9rem;" onchange="editingPlans[${pIdx}].tasks[${tIdx}].t=this.value">
+                            <input type="text" value="${t.title}" class="form-input" style="flex:1; padding:6px; font-size:0.85rem;" onchange="editingPlans[${pIdx}].tasks[${tIdx}].title=this.value">
                             <input type="checkbox" ${t.isDuration?'checked':''} onchange="editingPlans[${pIdx}].tasks[${tIdx}].isDuration=this.checked">
-                            <button onclick="editingPlans[${pIdx}].tasks.splice(${tIdx},1);renderPlanEditor()" style="border:none;background:none;color:red;">✕</button>
+                            <button onclick="editingPlans[${pIdx}].tasks.splice(${tIdx},1);renderPlanEditor()" style="border:none;background:none;color:red; font-size:1.1rem;">✕</button>
                         </div>`).join('')}
-                    <button onclick="editingPlans[${pIdx}].tasks.push({t:'09:00',title:'新任务',isDuration:false});renderPlanEditor()" style="font-size:0.75rem; width:100%; border:1px solid #ccc; background:#fff; padding:6px; border-radius:8px;">+ 增加阶段任务项</button>
+                    <button onclick="editingPlans[${pIdx}].tasks.push({t:'09:00',title:'新加计划项',isDuration:false});renderPlanEditor()" style="font-size:0.75rem; width:100%; border:1px solid #ccc; background:#fff; border-radius:8px; padding:8px;">+ 增加此阶段全局模板项</button>
                 </div>`).join('');
         }
 
-        // --- 辅助逻辑 ---
+        // --- 逻辑与系统辅助 ---
         function openAddTaskModal() { const now = new Date(); document.getElementById('new_time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; document.getElementById('addTaskFormModal').classList.add('active'); document.getElementById('globalMask').style.display = 'block'; }
         function submitNewTaskDaily() {
-            const title = document.getElementById('new_title').value || "DIY任务";
+            const title = document.getElementById('new_title').value || "临时任务";
             const time = document.getElementById('new_time').value;
             const isDur = document.getElementById('new_isDur').checked;
             const dk = formatDate(currentViewDate); const tasks = getDailyTaskList(currentViewDate);
@@ -311,8 +325,8 @@
             localStorage.setItem('hunan_daily_tasks_' + dk, JSON.stringify(tasks));
             document.getElementById('new_title').value = ""; closeAllBottomModals(); render();
         }
-        function clearDailyTasks() { if(confirm("清空今日列表？")){ localStorage.setItem('hunan_daily_tasks_' + formatDate(currentViewDate), JSON.stringify([])); render(); } }
-        function saveAllPlans() { localStorage.setItem('hunan_plan_config', JSON.stringify(editingPlans)); showToast("同步成功"); closeModal('planModal'); render(); }
+        function clearDailyTasks() { if(confirm("清空今日列表？(不改模板)")){ localStorage.setItem('hunan_daily_tasks_' + formatDate(currentViewDate), JSON.stringify([])); render(); } }
+        function saveAllPlans() { localStorage.setItem('hunan_plan_config', JSON.stringify(editingPlans)); showToast("全局规划同步成功"); closeModal('planModal'); render(); }
         function closeAllBottomModals() { document.querySelectorAll('.bottom-modal').forEach(m => m.classList.remove('active')); document.getElementById('globalMask').style.display = 'none'; }
         function removeTaskDaily(idx) { const tasks = getDailyTaskList(currentViewDate); tasks.splice(idx, 1); localStorage.setItem('hunan_daily_tasks_' + formatDate(currentViewDate), JSON.stringify(tasks)); render(); }
         function editTaskDaily(idx, val) { const tasks = getDailyTaskList(currentViewDate); tasks[idx].title = val; localStorage.setItem('hunan_daily_tasks_' + formatDate(currentViewDate), JSON.stringify(tasks)); }
@@ -330,7 +344,7 @@
                 const dk = formatDate(itr); const isPast = itr <= new Date();
                 if ((calType === 'past' && isPast) || (calType === 'future' && !isPast)) {
                     const doneNum = JSON.parse(localStorage.getItem('hunan_exam_'+dk)||'[]').length;
-                    b.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; ${dk===formatDate(new Date())?'background:#fff9e6;':''}" onclick="viewDate('${dk}')">
+                    b.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; ${dk===formatDate(new Date())?'background:#fff9e6; border-left:4px solid #FFD700;':''}" onclick="viewDate('${dk}')">
                         <span style="font-weight:bold;">${itr.getMonth()+1}月${itr.getDate()}日</span>
                         <span style="font-size:0.8rem; color:${doneNum>0?'var(--success)':'#ccc'}">${doneNum}项已成</span>
                     </div>`;
@@ -339,9 +353,9 @@
             }
         }
         function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
-        function exportData() { let d={}; for(let i=0; i<localStorage.length; i++){ let k=localStorage.key(i); if(k.startsWith('hunan_')) d[k]=localStorage.getItem(k); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'})); a.download=`备份_${formatDate(new Date())}.json`; a.click(); }
+        function exportData() { let d={}; for(let i=0; i<localStorage.length; i++){ let k=localStorage.key(i); if(k.startsWith('hunan_')) d[k]=localStorage.getItem(k); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'})); a.download=`湖南省考数据_${formatDate(new Date())}.json`; a.click(); }
         function importData(i) { const r=new FileReader(); r.onload=e=>{ const d=JSON.parse(e.target.result); for(let k in d) localStorage.setItem(k,d[k]); location.reload(); }; r.readAsText(i.files[0]); }
-        function resetAllData() { if(confirm("重置所有？")) { localStorage.clear(); location.reload(); } }
+        function resetAllData() { if(confirm("🚨 这将清空所有数据！确定吗？")) { localStorage.clear(); location.reload(); } }
         function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1000); }
 
         render();
