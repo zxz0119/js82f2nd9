@@ -4,12 +4,12 @@
     <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026湖南省考冲刺 (白金全能版)</title>
+    <title>2026湖南省考冲刺 (计时笔记版)</title>
     <style>
         :root {
             --primary: #D32F2F; --primary-dark: #b71c1c; --secondary: #1976D2;
             --bg: #f5f7fa; --card: #ffffff; --text: #333333; --subtext: #666666;
-            --success: #4CAF50; --warning: #FF9800; --cutoff: #212121;
+            --success: #4CAF50; --warning: #FF9800; --process: #0288D1;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -18,7 +18,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- 头部与控制面板 --- */
+        /* --- 头部 --- */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white; padding: 15px 20px 25px 20px;
@@ -35,16 +35,6 @@
             font-size: 0.8rem; cursor: pointer; backdrop-filter: blur(5px);
         }
 
-        .manual-shift-panel {
-            background: rgba(255,255,255,0.15); border-radius: 12px; padding: 8px 12px;
-            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
-            font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .manual-shift-panel input[type="time"] {
-            background: white; border: none; border-radius: 4px; padding: 2px 5px;
-            width: 70px; text-align: center; color: var(--primary); font-weight: bold;
-        }
-
         .date-nav {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(0,0,0,0.15); border-radius: 12px; padding: 10px;
@@ -53,18 +43,6 @@
         .nav-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 0 15px; cursor: pointer; opacity: 0.8; }
         .date-main { font-size: 1.2rem; font-weight: 700; }
         .date-sub { font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
-
-        .reset-link {
-            font-size: 0.7rem; color: #FFD700; text-decoration: underline; 
-            margin-top: 5px; display: inline-block; cursor: pointer;
-        }
-
-        .time-shift-notice {
-            background: rgba(255, 235, 59, 0.2); border: 1px solid rgba(255, 235, 59, 0.4);
-            color: #fff; font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;
-            margin-bottom: 12px; display: none; align-items: center; justify-content: center;
-        }
-        .time-shift-notice.active { display: flex; animation: fadeIn 0.5s; }
 
         .progress-bar-bg { height: 6px; background: rgba(0,0,0,0.2); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: #FFD700; width: 0%; transition: width 0.4s; }
@@ -76,69 +54,70 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: none; z-index: 10;
         }
 
-        /* --- 任务列表 --- */
+        /* --- 任务项样式 --- */
         .task-list { padding: 0 15px; }
         .task-item {
-            background: white; margin: 12px 0; padding: 16px;
-            border-radius: 16px; display: flex; align-items: flex-start;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s;
+            background: white; margin: 15px 0; padding: 16px;
+            border-radius: 16px; display: flex; flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.3s;
+            border-left: 6px solid #ddd;
         }
-        .task-item.locked { opacity: 0.5; filter: grayscale(0.8); }
-        .task-item.completed { background: #f1f8e9; border: 1px solid #c5e1a5; }
-        .checkbox {
-            width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 7px;
-            margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-        }
-        .task-item.completed .checkbox { background: var(--success); border-color: var(--success); }
-        .task-item.completed .checkbox::after { content: '✓'; color: white; font-size: 16px; font-weight: bold; }
-        .task-item.completed .task-title { color: var(--success); }
+        .task-item.in-progress { border-left-color: var(--process); background: #f0f9ff; }
+        .task-item.completed { border-left-color: var(--success); background: #f9fff9; }
         
-        .task-content { flex: 1; }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .task-title { font-weight: 600; font-size: 1rem; }
-        
-        .task-time { 
-            font-size: 0.8rem; font-weight: 700; color: var(--primary); 
-            background: #ffebee; padding: 3px 8px; border-radius: 6px; 
-            min-width: 50px; text-align: center;
+        .task-top-row { display: flex; align-items: flex-start; }
+        .status-btn {
+            width: 44px; height: 44px; border: 2px solid #ddd; border-radius: 12px;
+            margin-right: 12px; flex-shrink: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer;
+            font-size: 0.65rem; font-weight: bold; transition: all 0.2s;
+            background: white; color: #999;
         }
-        .task-time.actual { background: var(--success); color: white; }
-        .task-time.shifted { color: #E65100; background: #FFF3E0; border: 1px solid #FFE0B2; }
-        .original-time { font-size: 0.7rem; color: #999; text-decoration: line-through; margin-right: 5px; }
-        .task-detail { font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .task-item.in-progress .status-btn { border-color: var(--process); color: var(--process); }
+        .task-item.completed .status-btn { background: var(--success); border-color: var(--success); color: white; }
+
+        .task-main-info { flex: 1; }
+        .task-ref-time { font-size: 0.75rem; color: #999; margin-bottom: 2px; display: block; }
+        .task-item.in-progress .task-ref-time { color: var(--process); }
+        
+        .task-input-title {
+            width: 100%; border: none; background: transparent;
+            font-size: 1rem; font-weight: 600; color: var(--text);
+            padding: 2px 0; border-bottom: 1px dashed #eee; outline: none;
+        }
+
+        .time-badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .time-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .badge-start { background: #e3f2fd; color: #0277bd; }
+        .badge-end { background: #e8f5e9; color: #2e7d32; }
+        .badge-duration { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
+
+        .task-note-area {
+            width: 100%; border: none; background: #f8f8f8;
+            border-radius: 8px; padding: 10px; font-size: 0.85rem;
+            color: #555; margin-top: 10px; resize: none; outline: none;
+            box-sizing: border-box;
+        }
 
         .phase-card {
-            background: white; margin: 20px 15px 15px 15px; padding: 18px;
+            background: white; margin: 20px 15px 10px 15px; padding: 18px;
             border-radius: 16px; border-left: 5px solid var(--secondary);
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         .phase-title { font-weight: 700; color: var(--secondary); font-size: 1.05rem; }
-        .phase-tag { background: #e3f2fd; color: var(--secondary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
-        .phase-desc { font-size: 0.9rem; color: var(--subtext); margin-top: 5px; }
+        .phase-desc { font-size: 0.85rem; color: var(--subtext); margin-top: 5px; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 999;
-            display: none; align-items: center; justify-content: center;
-        }
+        /* 模态框保持原样 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-card {
-            background: white; width: 90%; max-width: 450px; height: 80vh;
-            border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
-        }
+        .modal-card { background: white; width: 92%; max-width: 450px; height: 80vh; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
         .modal-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: #666; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: white; }
-        .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
-        .h-status { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; display:inline-block; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 15px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; }
 
-        .toast {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
-            border-radius: 25px; font-size: 0.9rem; z-index: 1000;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
+        .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 25px; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .toast.show { opacity: 1; }
     </style>
 </head>
@@ -146,16 +125,11 @@
 
     <div class="header">
         <div class="header-top">
-            <div class="app-title">⏰ 省考助手 · 尊享版</div>
+            <div class="app-title">⚖️ 省考计时笔记 · 尊享版</div>
             <div class="btn-group">
-                <button class="icon-btn" onclick="openHistoryModal()">📅 日历</button>
+                <button class="icon-btn" onclick="openHistoryModal()">📅 记录</button>
                 <button class="icon-btn" onclick="showSettings()">⚙️ 备份</button>
             </div>
-        </div>
-
-        <div class="manual-shift-panel">
-            <span>🛠 启动点：<input type="time" id="manualStartTime" onchange="setManualShift()"></span>
-            <button class="icon-btn" id="dynamicToggle" onclick="toggleDynamicMode()" style="background: rgba(255,255,255,0.3); min-width: 100px;">⏱️ 动态顺延: 开</button>
         </div>
 
         <div class="date-nav">
@@ -163,12 +137,10 @@
             <div style="text-align:center">
                 <div class="date-main" id="headerDate">--月--日</div>
                 <div class="date-sub" id="headerSub">--</div>
-                <div class="reset-link" onclick="clearManualShift()">↺ 重置所有记录</div>
             </div>
             <button class="nav-btn" onclick="changeDay(1)">›</button>
         </div>
         
-        <div class="time-shift-notice" id="shiftNotice"></div>
         <div class="progress-bar-bg"><div class="progress-fill" id="progressBar"></div></div>
         <div class="back-today" id="backTodayBtn" onclick="goToToday()">回到今天</div>
     </div>
@@ -190,15 +162,15 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-card" style="height: auto; padding: 20px;">
             <h3 style="margin-top:0">数据管理</h3>
-            <p style="font-size:0.85rem; color:#666;">建议每周备份一次。</p>
-            <button onclick="exportData()" style="width:100%; padding:12px; background:var(--secondary); color:white; border:none; border-radius:8px; margin-bottom:10px;">📤 导出本地备份</button>
+            <p style="font-size:0.85rem; color:#666;">包含计时时间、任务标题、打卡备注的所有数据。</p>
+            <button onclick="exportData()" style="width:100%; padding:12px; background:var(--secondary); color:white; border:none; border-radius:8px; margin-bottom:10px;">📤 导出笔记备份</button>
             <button onclick="document.getElementById('importFile').click()" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px;">📥 导入恢复数据</button>
             <input type="file" id="importFile" style="display:none" onchange="importData(this)">
             <button onclick="closeModal('settingsModal')" style="width:100%; margin-top:15px; border:none; background:none; color:#999;">关闭</button>
         </div>
     </div>
 
-    <div class="toast" id="toast">✅ 已打卡</div>
+    <div class="toast" id="toast">✅ 已更新</div>
 
     <script>
         // --- 1. 基础配置 ---
@@ -207,279 +179,170 @@
         let currentViewDate = new Date();
 
         const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        const timeToMins = s => { if(!s || !s.includes(':')) return -1; const [h,m]=s.split(':').map(Number); return h*60+m; };
-        
+        const timeToMins = s => { if(!s || !s.includes(':')) return 0; const [h,m]=s.split(':').map(Number); return h*60+m; };
         const minsToTime = m => { 
-            if (m >= 1440) return "23:59"; 
-            let totalMins = Math.max(0, Math.floor(m)); 
-            let h=Math.floor(totalMins/60), mm=totalMins%60; 
-            return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; 
+            let mm = Math.max(0, Math.floor(m));
+            if(mm >= 1440) return "23:59";
+            return `${String(Math.floor(mm/60)).padStart(2,'0')}:${String(mm%60).padStart(2,'0')}`;
         };
 
-        function getExerciseType(date) {
-            const base = new Date('2026-01-01');
-            const diff = Math.floor((date - base) / 86400000);
-            return (diff % 2 === 0) ? "💤 休息日 (散步/拉伸)" : "🔥 力量+有氧 (1小时)";
-        }
-
-        // --- 2. 计划内容 ---
+        // --- 2. 计划参考框架 ---
         function getRawTasks(date) {
             const month = date.getMonth() + 1;
             const day = date.getDate();
-            const dayOfWeek = date.getDay();
-            let phase = {};
-            let tasks = [];
+            let phase = {}; let tasks = [];
 
-            if (month === 1 && day <= 9) {
-                phase = { title: "🛠 Phase 0：物资与身心整备", desc: "工欲善其事，必先利其器。", tag: "准备" };
-                tasks = [
-                    { t: "08:30", title: "📅 计划通览", detail: "阅读冲刺计划，理解重心。", type: "info" },
-                    { t: "10:00", title: "🖊️ 物资采购", detail: "0.5mm黑笔, 2B涂卡笔, 错题本。", type: "todo" },
-                    { t: "14:00", title: "🧹 环境清理", detail: "清理书桌，移除杂物。", type: "todo" },
-                    { t: "16:00", title: "💊 补剂准备", detail: "复合维B，维C，抗疲劳补剂。", type: "todo" },
-                    { t: "20:00", title: "📱 戒断设置", detail: "抖音/游戏限制每日15分钟。", type: "todo" },
-                    { t: "22:30", title: "💤 强制早睡", detail: "调整生物钟，禁止熬夜。", type: "health" }
-                ];
-            } else if (month === 1 && day >= 10&& day <= 27) {
-                phase = { title: "🏗 Phase 1：基石修复期", desc: "找回肌肉记忆，建立常识框架。", tag: "打基础" };
-                tasks = [
-                    { t: "07:30", title: "起居 & 启动", detail: "温水400ml + 维B/C", type: "health" },
-                    { t: "08:00", title: "晨读 (湘情)", detail: "三高四新/2025报告/成语200个", type: "study" },
-                    { t: "08:30", title: "资料分析 (重塑)", detail: "默写公式 -> 慢做20题", type: "study" },
-                    { t: "10:30", title: "休息", detail: "远眺5分钟，喝水", type: "health" },
-                    { t: "10:45", title: "数量关系", detail: "工程/行程/经济。5-10道真题", type: "study" },
-                    { t: "12:00", title: "午餐 & 补剂", detail: "七分饱。午休30分", type: "health" },
-                    { t: "14:00", title: "言语/判断", detail: "逻辑填空20题 + 片段10题", type: "study" },
-                    { t: "16:00", title: "深度复盘", detail: "重做错题，归纳原因", type: "study" },
-                    { t: "17:30", title: "运动时间", detail: getExerciseType(date), type: "health" },
-                    { t: "20:00", title: "图形 & 政治", detail: "图推20题 + 政治网课", type: "study" },
-                    { t: "23:00", title: "晚安", detail: "回顾公式，睡觉", type: "health" }
-                ];
+            if (month === 1 && day <= 6) {
+                phase = { title: "🛠 Phase 0：整备期", desc: "重点：环境清理、物资采购、心态建设。" };
+                tasks = [{t:"08:30",title:"通览计划"},{t:"10:00",title:"物资采购"},{t:"14:00",title:"环境清理"},{t:"20:00",title:"戒断设置"}];
+            } else if (month === 1 && day >= 7 && day <= 27) {
+                phase = { title: "🏗 Phase 1：基石期", desc: "重点：晨读湘情，重塑资料公式，数量关系突破。" };
+                tasks = [{t:"07:30",title:"起居启动"},{t:"08:00",title:"晨读(湘情)"},{t:"08:30",title:"资料分析"},{t:"10:45",title:"数量关系"},{t:"14:00",title:"言语判断"},{t:"16:00",title:"深度复盘"},{t:"17:30",title:"运动"},{t:"20:00",title:"图形政治"}];
             } else if ((month === 1 && day >= 28) || (month === 2 && day <= 3)) {
-                phase = { title: "🧨 Phase 2：春节保手感", desc: "弹性学习，不断档。", tag: "维持" };
-                tasks = [
-                    { t: "09:00", title: "防手生训练", detail: "资料分析15题 + 图推10题", type: "study" },
-                    { t: "14:00", title: "湖南常识", detail: "刷'新湖南'App", type: "study" },
-                    { t: "全天", title: "居家运动", detail: "深蹲/俯卧撑 30分钟", type: "health" }
-                ];
+                phase = { title: "🧨 Phase 2：春节期", desc: "重点：弹性学习，保持手感，刷常识。" };
+                tasks = [{t:"09:00",title:"防手生训练"},{t:"14:00",title:"湖南常识"},{t:"16:00",title:"居家运动"}];
             } else if (month === 2 && day >= 4) {
-                const isModeA = [0, 1, 3, 5].includes(dayOfWeek);
-                phase = { title: "🚀 Phase 3：提速期", desc: isModeA ? "理科主攻" : "文科主攻", tag: "提速" };
-                tasks = [
-                    { t: "07:30", title: "起居", detail: "水 + 维B/C", type: "health" },
-                    { t: "08:30", title: isModeA ? "🔴 强攻:资料" : "🔴 强攻:言语判断", detail: isModeA ? "限时40题，控时30分" : "限时75题模拟", type: "study" },
-                    { t: "10:45", title: isModeA ? "🔵 辅练:数量" : "🔵 辅练:资料", detail: "保持手感训练", type: "study" },
-                    { t: "14:00", title: "申论专项", detail: isModeA ? "拆解范文结构" : "手写小题实战", type: "study" },
-                    { t: "17:30", title: "运动", detail: getExerciseType(date), type: "health" },
-                    { t: "20:00", title: "错题清零", detail: "整理今日错题", type: "study" }
-                ];
+                phase = { title: "🚀 Phase 3：提速期", desc: "重点：理科/文科交叉强攻，申论手写实战。" };
+                tasks = [{t:"08:30",title:"🔴 强攻专项"},{t:"10:45",title:"🔵 辅练专项"},{t:"14:00",title:"申论手写"},{t:"17:30",title:"运动"},{t:"20:00",title:"错题清零"}];
             } else if (month === 3 && day <= 13) {
-                phase = { title: "🏁 Phase 4：全真模考", desc: "适应考场时间。", tag: "冲刺" };
-                tasks = [
-                    { t: "07:00", title: "早起模拟", detail: "模拟考试日起床时间", type: "health" },
-                    { t: "09:00", title: "⚡ 全真模考", detail: "120分钟行测，必须涂卡", type: "study" },
-                    { t: "14:00", title: "申论/复盘", detail: "隔天模考申论", type: "study" },
-                    { t: "19:00", title: "押题背诵", detail: "时政/考前30分", type: "study" },
-                    { t: "22:30", title: "强制早睡", detail: "调整生物钟", type: "health" }
-                ];
-            } else { phase = { title: "⏳ 非备考期", desc: "不在计划范围内", tag: "等待" }; }
+                phase = { title: "🏁 Phase 4：模考期", desc: "重点：全真模考，适应考场节奏，押题背诵。" };
+                tasks = [{t:"09:00",title:"⚡ 全真模考"},{t:"14:00",title:"申论复盘"},{t:"19:00",title:"押题背诵"}];
+            } else { phase = { title: "⏳ 非备考期", desc: "暂无参考计划。" }; }
             return { info: phase, tasks: tasks };
         }
 
-        // --- 3. 计算核心 ---
-        function processTasksWithDynamicShift(rawTasks, isToday) {
-            const dateKey = formatDate(currentViewDate);
-            const savedIndices = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
-            const actualTimes = JSON.parse(localStorage.getItem('hunan_actual_times_' + dateKey) || '{}');
-            const manualStart = localStorage.getItem('manual_start_' + dateKey);
-            const isDynamicMode = localStorage.getItem('hunan_dynamic_mode') !== 'false';
-
-            let currentShift = 0;
-            const firstTimed = rawTasks.find(t => t.t.includes(':'));
-            
-            if (firstTimed) {
-                const planStart = timeToMins(firstTimed.t);
-                if (manualStart) {
-                    currentShift = timeToMins(manualStart) - planStart;
-                } else if (isToday && savedIndices.length === 0) {
-                    const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
-                    if (nowMins > planStart + 30) {
-                        currentShift = Math.floor((nowMins - planStart) / 15) * 15;
-                    }
-                }
-            }
-
-            const processed = rawTasks.map((t, i) => {
-                const origMins = timeToMins(t.t);
-                if (origMins === -1) return { ...t };
-                let displayTime, status = '', originalTime = null;
-
-                if (savedIndices.includes(i) && actualTimes[i]) {
-                    displayTime = actualTimes[i];
-                    if (isDynamicMode) currentShift = timeToMins(actualTimes[i]) - origMins;
-                    status = 'actual';
-                    originalTime = t.t;
-                } else {
-                    const shiftedMins = origMins + currentShift;
-                    displayTime = minsToTime(shiftedMins); 
-                    status = currentShift !== 0 ? 'shifted' : '';
-                    if(currentShift !== 0) originalTime = t.t;
-                }
-                return { ...t, displayTime, originalTime, status };
-            });
-
-            return { tasks: processed, shift: currentShift, mode: isDynamicMode };
-        }
-
-        // --- 4. 渲染核心 ---
+        // --- 3. 渲染逻辑 (计时重构版) ---
         function render() {
-            const isToday = formatDate(currentViewDate) === formatDate(new Date());
+            const dateKey = formatDate(currentViewDate);
             const raw = getRawTasks(currentViewDate);
-            const processed = processTasksWithDynamicShift(raw.tasks, isToday);
             
             document.getElementById('headerDate').innerText = `${currentViewDate.getMonth()+1}月${currentViewDate.getDate()}日`;
             const diff = Math.ceil((EXAM_DATE - currentViewDate)/86400000);
-            document.getElementById('headerSub').innerText = isToday ? `距省考 ${diff} 天` : (currentViewDate > new Date() ? `未来计划` : `回顾`);
-            document.getElementById('backTodayBtn').style.display = isToday ? 'none' : 'block';
+            document.getElementById('headerSub').innerText = dateKey === formatDate(new Date()) ? `距省考 ${diff} 天` : `往日笔记`;
+            document.getElementById('backTodayBtn').style.display = (dateKey === formatDate(new Date())) ? 'none' : 'block';
 
-            const toggleBtn = document.getElementById('dynamicToggle');
-            toggleBtn.innerText = `⏱️ 动态顺延: ${processed.mode ? '开' : '关'}`;
-            toggleBtn.style.opacity = processed.mode ? '1' : '0.6';
+            document.getElementById('phaseContainer').innerHTML = `<div class="phase-card"><div class="phase-title">${raw.info.title}</div><div class="phase-desc">${raw.info.desc}</div></div>`;
 
-            const noticeEl = document.getElementById('shiftNotice');
-            if (processed.shift !== 0) {
-                noticeEl.innerText = processed.mode ? `🔄 后续随节奏顺延 ${Math.abs(processed.shift)} 分钟` : `📍 启动点固定顺延 ${Math.abs(processed.shift)} 分钟`;
-                noticeEl.classList.add('active');
-            } else { noticeEl.classList.remove('active'); }
+            // 加载数据
+            const savedStarts = JSON.parse(localStorage.getItem('hunan_start_times_' + dateKey) || '{}');
+            const savedEnds = JSON.parse(localStorage.getItem('hunan_actual_times_' + dateKey) || '{}');
+            const savedDone = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
+            const savedActualTasks = JSON.parse(localStorage.getItem('hunan_actual_tasks_' + dateKey) || '{}');
+            const savedNotes = JSON.parse(localStorage.getItem('hunan_notes_' + dateKey) || '{}');
 
-            document.getElementById('phaseContainer').innerHTML = `
-                <div class="phase-card">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                        <div class="phase-title">${raw.info.title}</div>
-                        <div class="phase-tag">${raw.info.tag}</div>
-                    </div>
-                    <div class="phase-desc">${raw.info.desc}</div>
-                </div>`;
-
-            const k = 'hunan_exam_' + formatDate(currentViewDate);
-            const saved = JSON.parse(localStorage.getItem(k) || '[]');
             const listEl = document.getElementById('taskList');
             listEl.innerHTML = '';
-            
-            processed.tasks.forEach((t, i) => {
-                const checked = saved.includes(i);
-                const isLocked = i > 0 && !saved.includes(i-1) && !checked;
+
+            let lastEndTimeMins = 0;
+
+            raw.tasks.forEach((t, i) => {
+                const startTime = savedStarts[i];
+                const endTime = savedEnds[i];
+                const isDone = savedDone.includes(i);
+                const isInProgress = startTime && !endTime;
+                
+                const actualTitle = savedActualTasks[i] || t.title;
+                const noteValue = savedNotes[i] || '';
+
+                // 计算耗时
+                let durationText = "";
+                if(startTime && endTime) {
+                    const diff = timeToMins(endTime) - timeToMins(startTime);
+                    durationText = diff > 0 ? `${diff}分钟` : "跨天或误差";
+                }
+
+                // 计算该任务的“动态参考时间”
+                let dynamicRef = t.t;
+                if(i > 0 && lastEndTimeMins > 0) {
+                    // 如果前一个任务结束了，计算前一个任务的原定结束到现在的偏移
+                    // 简化逻辑：直接显示“建议接续上个任务”
+                    dynamicRef = `接续上项`;
+                }
+                if(endTime) lastEndTimeMins = timeToMins(endTime);
+
+                let statusClass = isDone ? 'completed' : (isInProgress ? 'in-progress' : '');
+                let btnLabel = isDone ? '完成' : (isInProgress ? '结束' : '开始');
+
                 listEl.innerHTML += `
-                    <div class="task-item ${checked?'completed':''} ${isLocked?'locked':''}" onclick="toggleTask(${i})">
-                        <div class="checkbox"></div>
-                        <div class="task-content">
-                            <div class="task-header">
-                                <span class="task-title">${t.title}</span>
-                                <span class="task-time ${t.status}">
-                                    ${t.originalTime ? `<span class="original-time">${t.originalTime}</span>` : ''}
-                                    ${t.displayTime}
-                                </span>
+                    <div class="task-item ${statusClass}">
+                        <div class="task-top-row">
+                            <div class="status-btn" onclick="handleTimerClick(${i})">
+                                <span>${btnLabel}</span>
                             </div>
-                            <div class="task-detail">${t.detail}</div>
+                            <div class="task-main-info">
+                                <span class="task-ref-time">参考: ${t.t} → ${dynamicRef}</span>
+                                <input type="text" class="task-input-title" id="title_${i}" 
+                                    value="${actualTitle}" onchange="saveData(${i}, 'title')" placeholder="自定义任务...">
+                                <div class="time-badge-row">
+                                    ${startTime ? `<span class="time-badge badge-start">始 ${startTime}</span>` : ''}
+                                    ${endTime ? `<span class="time-badge badge-end">终 ${endTime}</span>` : ''}
+                                    ${durationText ? `<span class="time-badge badge-duration">⏱️ ${durationText}</span>` : ''}
+                                </div>
+                            </div>
                         </div>
+                        <textarea class="task-note-area" id="note_${i}" rows="2" 
+                            placeholder="写下心得、错题重点..." onchange="saveData(${i}, 'note')">${noteValue}</textarea>
                     </div>`;
             });
-            document.getElementById('progressBar').style.width = (raw.tasks.length ? (saved.length/raw.tasks.length*100) : 0) + '%';
+            document.getElementById('progressBar').style.width = (raw.tasks.length ? (savedDone.length/raw.tasks.length*100) : 0) + '%';
         }
 
-        // --- 5. 业务逻辑 ---
-        function toggleDynamicMode() {
-            const current = localStorage.getItem('hunan_dynamic_mode') !== 'false';
-            localStorage.setItem('hunan_dynamic_mode', !current);
-            render();
-            showToast(`动态顺延已${!current ? '开启' : '关闭'}`);
-        }
-
-        function toggleTask(i) {
+        // --- 4. 计时逻辑 ---
+        function handleTimerClick(idx) {
             const dateKey = formatDate(currentViewDate);
-            const k = 'hunan_exam_' + dateKey;
-            const tk = 'hunan_actual_times_' + dateKey;
-            let saved = JSON.parse(localStorage.getItem(k) || '[]');
-            let actualTimes = JSON.parse(localStorage.getItem(tk) || '{}');
-            
-            if (saved.includes(i)) {
-                if (saved.some(index => index > i)) {
-                    showToast("⚠️ 请先取消后续任务", "warning"); return;
-                }
-                saved = saved.filter(x => x !== i);
-                delete actualTimes[i];
+            let starts = JSON.parse(localStorage.getItem('hunan_start_times_' + dateKey) || '{}');
+            let ends = JSON.parse(localStorage.getItem('hunan_actual_times_' + dateKey) || '{}');
+            let done = JSON.parse(localStorage.getItem('hunan_exam_' + dateKey) || '[]');
+
+            const now = new Date();
+            const nowStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            if (!starts[idx]) {
+                // 第一步：记录开始
+                const time = prompt("记录开始时间:", nowStr);
+                if (time === null) return;
+                starts[idx] = time || nowStr;
+            } else if (starts[idx] && !ends[idx]) {
+                // 第二步：记录结束
+                const time = prompt("记录结束时间:", nowStr);
+                if (time === null) return;
+                ends[idx] = time || nowStr;
+                if(!done.includes(idx)) done.push(idx);
             } else {
-                if (i > 0 && !saved.includes(i - 1)) {
-                    showToast("🔒 请按顺序打卡", "warning"); return;
-                }
-
-                // --- 修改点：弹出时间选择框 ---
-                let defaultTime = "";
-                const now = new Date();
-                const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-                
-                const manualStart = localStorage.getItem('manual_start_' + dateKey);
-                // 第一个计划默认使用手动启动点，其他任务默认当前现实时间
-                if (i === 0 && manualStart) {
-                    defaultTime = manualStart;
-                } else {
-                    defaultTime = currentTime;
-                }
-
-                const userTime = prompt("请输入此任务的打卡时间 (格式 HH:mm):", defaultTime);
-                
-                // 用户点击取消则不打卡
-                if (userTime === null) return;
-
-                // 简单的正则验证 HH:mm
-                if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(userTime)) {
-                    actualTimes[i] = userTime;
-                } else {
-                    alert("时间格式错误 (正确示例 08:30)，已自动使用默认时间");
-                    actualTimes[i] = defaultTime;
-                }
-
-                saved.push(i);
+                // 第三步：重置
+                if(confirm("确定要重置该任务的计时吗？")) {
+                    delete starts[idx];
+                    delete ends[idx];
+                    done = done.filter(x => x !== idx);
+                } else return;
             }
-            localStorage.setItem(k, JSON.stringify(saved));
-            localStorage.setItem(tk, JSON.stringify(actualTimes));
+
+            localStorage.setItem('hunan_start_times_' + dateKey, JSON.stringify(starts));
+            localStorage.setItem('hunan_actual_times_' + dateKey, JSON.stringify(ends));
+            localStorage.setItem('hunan_exam_' + dateKey, JSON.stringify(done));
             render();
         }
 
-        function setManualShift() {
-            const time = document.getElementById('manualStartTime').value;
-            if(time) { localStorage.setItem('manual_start_' + formatDate(currentViewDate), time); render(); }
+        function saveData(idx, type) {
+            const dateKey = formatDate(currentViewDate);
+            const key = type === 'title' ? 'hunan_actual_tasks_' : 'hunan_notes_';
+            let data = JSON.parse(localStorage.getItem(key + dateKey) || '{}');
+            data[idx] = document.getElementById(type + '_' + idx).value;
+            localStorage.setItem(key + dateKey, JSON.stringify(data));
+            showToast("笔记已自动保存");
         }
 
-        function clearManualShift() {
-            if(!confirm("确定重置吗？")) return;
-            const dk = formatDate(currentViewDate);
-            localStorage.removeItem('manual_start_' + dk);
-            localStorage.removeItem('hunan_exam_' + dk);
-            localStorage.removeItem('hunan_actual_times_' + dk);
-            render();
-        }
-
-        function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.background = type === 'warning' ? '#E65100' : 'rgba(0,0,0,0.8)';
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 1500);
-        }
-
+        // --- 5. 备份逻辑 (全量存储覆盖) ---
         function exportData() {
             let data = {};
             for(let i=0; i<localStorage.length; i++){
                 let k = localStorage.key(i);
-                if(k.startsWith('hunan_') || k.startsWith('manual_start_')) {
-                    data[k] = localStorage.getItem(k);
-                }
+                if(k.includes('hunan_')) data[k] = localStorage.getItem(k);
             }
             const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `省考备份_${formatDate(new Date())}.json`;
+            a.download = `省考计时日记_${formatDate(new Date())}.json`;
             a.click();
         }
 
@@ -489,29 +352,31 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     for(let k in data) localStorage.setItem(k, data[k]);
-                    alert("导入成功，记录已完全恢复"); location.reload();
-                } catch(e) { alert("格式错误"); }
+                    alert("笔记与时间记录导入成功！"); location.reload();
+                } catch(e) { alert("文件解析失败"); }
             };
             reader.readAsText(input.files[0]);
         }
 
-        function openHistoryModal() { document.getElementById('historyModal').classList.add('active'); refreshHistoryList(); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        // --- 基础导航与辅助 ---
+        function showToast(msg) { const t=document.getElementById('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1000); }
         function changeDay(o) { currentViewDate.setDate(currentViewDate.getDate()+o); render(); }
         function goToToday() { currentViewDate = new Date(); render(); }
         function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openHistoryModal() { document.getElementById('historyModal').classList.add('active'); switchTab('foot'); }
         function switchTab(t) { activeTab = t; refreshHistoryList(); }
-
+        
         function refreshHistoryList() {
             const body = document.getElementById('historyContent');
             body.innerHTML = '';
             let itr = new Date(START_DATE);
             while (itr <= new Date()) {
                 const d = new Date(itr); const k = formatDate(d);
-                const saved = JSON.parse(localStorage.getItem('hunan_exam_'+k) || '[]');
+                const savedDone = JSON.parse(localStorage.getItem('hunan_exam_'+k) || '[]');
                 body.innerHTML += `<div class="history-item" onclick="viewDate('${k}')">
                     <span>${d.getMonth()+1}月${d.getDate()}日</span>
-                    <span>${saved.length}个任务</span>
+                    <span style="color:var(--success); font-weight:bold">${savedDone.length}项成</span>
                 </div>`;
                 itr.setDate(itr.getDate()+1);
             }
@@ -519,8 +384,6 @@
         function viewDate(k) { currentViewDate = new Date(k); render(); closeModal('historyModal'); }
 
         render();
-        setInterval(() => { if(formatDate(currentViewDate) === formatDate(new Date())) render(); }, 60000);
     </script>
 </body>
 </html>
-
